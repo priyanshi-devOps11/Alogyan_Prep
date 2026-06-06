@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_theme.dart';
 
-/// Bottom-right CTA button that morphs between:
-///  • Arrow icon (intermediate pages) → calls [onNext]
-///  • "Get Started" text + check icon (last page) → calls [onGetStarted]
+// Clean absolute import targeting your global design tokens
+import 'package:alogyan_prep/core/theme/app_theme.dart';
+
+/// Bottom-right CTA button that morphs smoothly between:
+///   • Arrow icon (intermediate slides) ➔ calls [onNext]
+///   • "Get Started" text + check icon (final slide) ➔ calls [onGetStarted]
 class OnboardingActionButton extends StatelessWidget {
   const OnboardingActionButton({
     super.key,
@@ -20,14 +22,33 @@ class OnboardingActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
-      transitionBuilder: (child, animation) => ScaleTransition(
-        scale: animation,
-        child: FadeTransition(opacity: animation, child: child),
+      switchInCurve: Curves.easeOutBack,
+      switchOutCurve: Curves.easeIn,
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return ScaleTransition(
+          scale: animation,
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+        );
+      },
+      child: isLastPage
+          ? _GetStartedButton(
+        key: const ValueKey('get_started_cta'),
+        onTap: onGetStarted,
+      )
+          : _ArrowButton(
+        key: const ValueKey('arrow_next_cta'),
+        onTap: onNext,
       ),
-      child: isLastPage ? _GetStartedButton(key: const ValueKey('get_started'), onTap: onGetStarted) : _ArrowButton(key: const ValueKey('arrow'), onTap: onNext),
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Intermediate Page Arrow Action Component
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _ArrowButton extends StatelessWidget {
   const _ArrowButton({super.key, required this.onTap});
@@ -66,6 +87,10 @@ class _ArrowButton extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Final Page "Get Started" Confirmation Component
+// ─────────────────────────────────────────────────────────────────────────────
+
 class _GetStartedButton extends StatelessWidget {
   const _GetStartedButton({super.key, required this.onTap});
 
@@ -95,10 +120,18 @@ class _GetStartedButton extends StatelessWidget {
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Get Started', style: AppTheme.buttonLabel),
+            Text(
+              'Get Started',
+              style: AppTheme.buttonLabel,
+            ),
             const SizedBox(width: 10),
-            const Icon(Icons.check_rounded, color: Colors.white, size: 20),
+            const Icon(
+              Icons.check_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
           ],
         ),
       ),

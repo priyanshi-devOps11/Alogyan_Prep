@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_theme.dart';
+
+// Clean absolute import to pull token parameters smoothly
+import 'package:alogyan_prep/core/theme/app_theme.dart';
 
 /// A row of animated page indicator dots.
 ///
@@ -38,8 +40,7 @@ class PageDotIndicator extends StatelessWidget {
               color: isActive
                   ? AppTheme.dotActive
                   : AppTheme.dotInactive,
-              borderRadius:
-              BorderRadius.circular(AppTheme.radiusCircle),
+              borderRadius: BorderRadius.circular(AppTheme.radiusCircle),
             ),
           ),
         );
