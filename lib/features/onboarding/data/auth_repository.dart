@@ -1,53 +1,41 @@
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// Absolute paths mapping your internal architecture files directly
+import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Riverpod Provider Configuration
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Exposes the concrete implementation of AuthRepository globally.
-/// Presentation layer elements will read this provider to execute auth logic.
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  return FirebaseAuthRepository(
-    firebaseAuth: firebase_auth.FirebaseAuth.instance,
-    firestore: FirebaseFirestore.instance,
-  );
+  return FirebaseAuthRepository();
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Abstract Contract (Your Contract Interface)
+// Abstract Contract (Interface)
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Abstract contract for authentication operations.
-/// The presentation layer depends only on this interface — never on Firebase directly.
-/// This makes the feature fully testable and swappable.
 abstract class AuthRepository {
-  /// Signs in an existing student with email and password.
-  /// Throws [AuthException] on failure.
   Future<String> signInWithEmail({
     required String email,
     required String password,
   });
 
-  /// Creates a new student account and persists a Firestore profile.
-  /// Throws [AuthException] on failure.
   Future<String> registerWithEmail({
     required String email,
     required String password,
     required String displayName,
   });
 
-  /// Signs out the currently authenticated student.
   Future<void> signOut();
 
-  /// Sends a password-reset email to the given address.
   Future<void> sendPasswordResetEmail(String email);
 
-  /// Returns the UID of the currently authenticated user, or null.
   String? get currentUserId;
-
-  /// Returns the email of the currently authenticated user, or null.
   String? get currentUserEmail;
 }
 
@@ -55,7 +43,6 @@ abstract class AuthRepository {
 // Typed Exception
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// Typed exception — never expose raw Firebase error codes to the UI layer.
 class AuthException implements Exception {
   final String message;
   const AuthException(this.message);
@@ -65,24 +52,22 @@ class AuthException implements Exception {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Concrete Backend Infrastructure Implementation
+// Concrete Firebase Implementation (The code you provided)
 // ─────────────────────────────────────────────────────────────────────────────
 
 class FirebaseAuthRepository implements AuthRepository {
-  final firebase_auth.FirebaseAuth _firebaseAuth;
+  FirebaseAuthRepository({
+    FirebaseAuth? firebaseAuth,
+    FirebaseFirestore? firestore,
+  })  : _auth = firebaseAuth ?? FirebaseAuth.instance,
+        _firestore = firestore ?? FirebaseFirestore.instance;
+
+  final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
 
-  FirebaseAuthRepository({
-    required firebase_auth.FirebaseAuth firebaseAuth,
-    required FirebaseFirestore firestore,
-  })  : _firebaseAuth = firebaseAuth,
-        _firestore = firestore;
+  static const String _usersCollection = 'students';
 
-  @override
-  String? get currentUserId => _firebaseAuth.currentUser?.uid;
-
-  @override
-  String? get currentUserEmail => _firebaseAuth.currentUser?.email;
+  // ── Sign In ───────────────────────────────────────────────────────────────
 
   @override
   Future<String> signInWithEmail({
@@ -90,20 +75,19 @@ class FirebaseAuthRepository implements AuthRepository {
     required String password,
   }) async {
     try {
-      final credential = await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
         password: password,
       );
-      if (credential.user == null) {
-        throw const AuthException('User payload missing following authentication.');
-      }
       return credential.user!.uid;
-    } on firebase_auth.FirebaseAuthException catch (e) {
-      throw AuthException(_handleFirebaseError(e.code, e.message));
-    } catch (e) {
-      throw AuthException(e.toString());
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(_mapFirebaseError(e.code));
+    } catch (_) {
+      throw const AuthException('Something went wrong. Please try again.');
     }
   }
+
+  // ── Register ──────────────────────────────────────────────────────────────
 
   @override
   Future<String> registerWithEmail({
@@ -112,61 +96,90 @@ class FirebaseAuthRepository implements AuthRepository {
     required String displayName,
   }) async {
     try {
-      final credential = await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
         password: password,
       );
+      final user = credential.user!;
 
-      final uid = credential.user!.uid;
+      // Update Firebase Auth display name
+      await user.updateDisplayName(displayName.trim());
 
-      // Automatically populate client profile tracking structural schema inside Firestore
-      await _firestore.collection('students').doc(uid).set({
-        'uid': uid,
-        'email': email,
-        'displayName': displayName,
-        'createdAt': DateTime.now().toIso8601String(),
-        'onboardingCompleted': true,
-      });
+      // Persist profile to Firestore
+      final profile = StudentProfile(
+        uid: user.uid,
+        email: email.trim(),
+        displayName: displayName.trim(),
+        createdAt: DateTime.now(),
+        onboardingCompleted: true,
+      );
+      await _firestore
+          .collection(_usersCollection)
+          .doc(user.uid)
+          .set(profile.toMap());
 
-      return uid;
-    } on firebase_auth.FirebaseAuthException catch (e) {
-      throw AuthException(_handleFirebaseError(e.code, e.message));
-    } catch (e) {
-      throw AuthException(e.toString());
+      return user.uid;
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(_mapFirebaseError(e.code));
+    } catch (_) {
+      throw const AuthException('Registration failed. Please try again.');
     }
   }
 
+  // ── Sign Out ──────────────────────────────────────────────────────────────
+
   @override
   Future<void> signOut() async {
-    await _firebaseAuth.signOut();
+    try {
+      await _auth.signOut();
+    } catch (_) {
+      throw const AuthException('Sign out failed. Please try again.');
+    }
   }
+
+  // ── Password Reset ────────────────────────────────────────────────────────
 
   @override
   Future<void> sendPasswordResetEmail(String email) async {
     try {
-      await _firebaseAuth.sendPasswordResetEmail(email: email);
-    } on firebase_auth.FirebaseAuthException catch (e) {
-      throw AuthException(_handleFirebaseError(e.code, e.message));
+      await _auth.sendPasswordResetEmail(email: email.trim());
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(_mapFirebaseError(e.code));
     }
   }
 
-  // ── Error Handler Wrapper ──────────────────────────────────────────────────
-  String _handleFirebaseError(String code, String? fallbackMessage) {
+  // ── Current User ──────────────────────────────────────────────────────────
+
+  @override
+  String? get currentUserId => _auth.currentUser?.uid;
+
+  @override
+  String? get currentUserEmail => _auth.currentUser?.email;
+
+  // ── Error Mapping ─────────────────────────────────────────────────────────
+
+  String _mapFirebaseError(String code) {
     switch (code) {
       case 'user-not-found':
-        return 'No student account found mapping that email.';
+        return 'No account found with this email.';
       case 'wrong-password':
-        return 'Incorrect authentication password password. Please try again.';
-      case 'email-already-in-use':
-        return 'This email address is already registered under another account.';
+        return 'Incorrect password. Please try again.';
       case 'invalid-email':
-        return 'The formatted email syntax structure provided is invalid.';
-      case 'weak-password':
-        return 'The input password payload fails security strength constraints.';
+        return 'Please enter a valid email address.';
       case 'user-disabled':
-        return 'This student profile execution profile context has been disabled.';
+        return 'This account has been disabled.';
+      case 'email-already-in-use':
+        return 'An account already exists with this email.';
+      case 'weak-password':
+        return 'Password must be at least 6 characters.';
+      case 'too-many-requests':
+        return 'Too many attempts. Please wait and try again.';
+      case 'network-request-failed':
+        return 'No internet connection. Please check your network.';
+      case 'invalid-credential':
+        return 'Invalid credentials. Please check your email and password.';
       default:
-        return fallbackMessage ?? 'Authentication pipeline processing failure encountered.';
+        return 'Authentication failed. Please try again.';
     }
   }
 }
