@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "723181195464",
+    "project_id": "alogyan-prep1",
+    "storage_bucket": "alogyan-prep1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:723181195464:android:b5f0646498d221779555fd",
+        "android_client_info": {
+          "package_name": "com.example.alogyan_prep"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZnPNTSEbnHBthJb5lUk8A_1WnNkWrSZg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

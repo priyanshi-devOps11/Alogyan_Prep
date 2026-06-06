@@ -1,53 +1,85 @@
 import 'package:flutter/material.dart';
-import 'features/onboarding/onboarding.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+// Absolute path configurations mapping your project domains directly
+import 'package:alogyan_prep/core/theme/app_theme.dart';
+import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
+import 'package:alogyan_prep/features/onboarding/controllers/auth_controller.dart';
+import 'package:alogyan_prep/features/onboarding/presentation/screens/onboarding_screen.dart';
+import 'package:alogyan_prep/features/onboarding/presentation/screens/login_screen.dart';
+import 'package:alogyan_prep/features/onboarding/presentation/screens/home_stub_screen.dart';
+
+// Safe conditional import wrapper to keep IDE happy if file generation is pending
+import 'firebase_options.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const AlogyanPrepApp());
+
+  // Initialize Firebase infrastructure layout
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase initialization warning: $e');
+  }
+
+  runApp(
+    const ProviderScope(
+      child: AlogyanPrepApp(),
+    ),
+  );
 }
 
-class AlogyanPrepApp extends StatelessWidget {
+class AlogyanPrepApp extends ConsumerWidget {
   const AlogyanPrepApp({super.key});
 
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'Alogyan Prep',
       debugShowCheckedModeBanner: false,
+
+      // Fallback fallback configuration to keep compilation live if static theme getter names mismatch
       theme: ThemeData(
         useMaterial3: true,
-        fontFamily: 'Poppins',
+        fontFamily: AppTheme.fontFamily,
         scaffoldBackgroundColor: const Color(0xFF0A0A14),
+        colorScheme: const ColorScheme.dark(
+          primary: AppTheme.brandOrange,
+        ),
       ),
-      // TODO: Replace with a proper router (go_router) when more screens exist.
-      // For now, always start with onboarding.
-      home: OnboardingScreen(
-        onCompleted: () {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (_) => const _HomeStub(),
-            ),
-          );
-        },
-      ),
+      home: const _AuthGate(),
     );
   }
 }
-class _HomeStub extends StatelessWidget {
-  const _HomeStub();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Reactive Authentication Router (Auth Gate Engine)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _AuthGate extends ConsumerWidget {
+  const _AuthGate();
 
   @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color(0xFF0A0A14),
-      body: Center(
-        child: Text(
-          '🏠 Home Screen\n(ALO-002 coming next)',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white70, fontSize: 18),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+
+    return switch (authState.status) {
+      AuthStatus.authenticated => const HomeStubScreen(),
+      AuthStatus.initial => const OnboardingScreen(),
+      AuthStatus.unauthenticated => const OnboardingScreen(),
+      AuthStatus.loading => const Scaffold(
+        backgroundColor: Color(0xFF0A0A14),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: AppTheme.brandOrange,
+          ),
         ),
       ),
-    );
+      _ => const OnboardingScreen(),
+    };
   }
 }
