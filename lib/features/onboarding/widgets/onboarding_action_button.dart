@@ -66,12 +66,12 @@ class _ArrowButton extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppTheme.brandOrangeLight, AppTheme.brandOrangeDark],
+            colors: [AppTheme.brandRedLight, AppTheme.brandRedDark],
           ),
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: AppTheme.brandOrange.withOpacity(0.4),
+              color: AppTheme.brandRed.withOpacity(0.4),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -107,12 +107,12 @@ class _GetStartedButton extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppTheme.brandOrangeLight, AppTheme.brandOrangeDark],
+            colors: [AppTheme.brandRedLight, AppTheme.brandRedDark],
           ),
           borderRadius: BorderRadius.circular(AppTheme.radiusCircle),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.brandOrange.withOpacity(0.45),
+              color: AppTheme.brandRed.withOpacity(0.45),
               blurRadius: 24,
               offset: const Offset(0, 10),
             ),

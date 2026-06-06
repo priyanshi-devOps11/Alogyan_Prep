@@ -123,6 +123,12 @@ abstract class AppTheme {
   static const double radiusL = 20.0;
   static const double radiusXL = 28.0;
   static const double radiusCircle = 999.0;
+  // ── Dot sizes ─────────────────────────────────────────────────────────────
+  static const double dotHeight = 8.0;
+  static const double dotWidthInactive = 8.0;
+  static const double dotWidthActive = 28.0;
+  static const Duration dotAnimDuration = Duration(milliseconds: 350);
+  static const Curve dotAnimCurve = Curves.easeInOutCubic;
 
   // ── Elevation / Shadow ────────────────────────────────────────────────────
   static List<BoxShadow> get cardShadow => [

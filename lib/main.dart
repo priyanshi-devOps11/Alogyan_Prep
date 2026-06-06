@@ -7,9 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:alogyan_prep/core/theme/app_theme.dart';
 import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
 import 'package:alogyan_prep/features/onboarding/controllers/auth_controller.dart';
-import 'package:alogyan_prep/features/onboarding/presentation/screens/onboarding_screen.dart';
-import 'package:alogyan_prep/features/onboarding/presentation/screens/login_screen.dart';
-import 'package:alogyan_prep/features/onboarding/presentation/screens/home_stub_screen.dart';
+
 
 // Safe conditional import wrapper to keep IDE happy if file generation is pending
 import 'firebase_options.dart';
@@ -48,7 +46,7 @@ class AlogyanPrepApp extends ConsumerWidget {
         fontFamily: AppTheme.fontFamily,
         scaffoldBackgroundColor: const Color(0xFF0A0A14),
         colorScheme: const ColorScheme.dark(
-          primary: AppTheme.brandOrange,
+          primary: AppTheme.brandRed,
         ),
       ),
       home: const _AuthGate(),

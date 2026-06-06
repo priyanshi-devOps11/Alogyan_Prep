@@ -28,21 +28,23 @@ class PrimaryButton extends StatelessWidget {
             gradient: isLoading
                 ? LinearGradient(
               colors: [
-                AppTheme.brandOrangeDark.withOpacity(0.6),
-                AppTheme.brandOrangeDark.withOpacity(0.6),
+                AppTheme.brandRedDark.withOpacity(0.6),
+                AppTheme.brandRedDark.withOpacity(0.6),
               ],
             )
                 : const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [AppTheme.brandOrangeLight, AppTheme.brandOrangeDark],
-            ),
+              colors: [AppTheme.brandRedLight, AppTheme.brandRedDark],),
+
+
+
             borderRadius: BorderRadius.circular(AppTheme.radiusM),
             boxShadow: isLoading
                 ? []
                 : [
               BoxShadow(
-                color: AppTheme.brandOrange.withOpacity(0.4),
+                color: AppTheme.brandRed.withOpacity(0.4),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),

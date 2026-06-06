@@ -71,8 +71,8 @@ class _IllustrationArea extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.brandOrange.withOpacity(0.18),
-                    AppTheme.brandOrange.withOpacity(0.0),
+                    AppTheme.brandRed.withOpacity(0.18),
+                    AppTheme.brandRed.withOpacity(0.0),
                   ],
                 ),
               ),
