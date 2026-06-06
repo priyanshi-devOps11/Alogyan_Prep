@@ -1,26 +1,31 @@
-/// Model representing a single onboarding slide.
-///
-/// Each slide contains a title, subtitle, a description,
-/// and the path to its illustration asset.
+/// Domain layer — pure Dart, zero Flutter/Firebase imports.
+/// All models are immutable and null-safe.
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Onboarding Slide Model
+// ─────────────────────────────────────────────────────────────────────────────
+
 class OnboardingSlide {
+  final String accentTag;
   final String title;
   final String subtitle;
   final String description;
-  final String assetPath; // Vector/Lottie asset placeholder path
-  final String? accentTag; // Optional top badge text (e.g. "FREE FOREVER")
+  final String assetPath;
 
   const OnboardingSlide({
+    required this.accentTag,
     required this.title,
     required this.subtitle,
     required this.description,
     required this.assetPath,
-    this.accentTag,
   });
 }
 
-/// Static repository of all onboarding slides.
-/// Update [assetPath] values once real assets are added under assets/images/.
-abstract class OnboardingData {
+// ─────────────────────────────────────────────────────────────────────────────
+// Static onboarding content
+// ─────────────────────────────────────────────────────────────────────────────
+
+abstract class OnboardingContent {
   static const List<OnboardingSlide> slides = [
     OnboardingSlide(
       accentTag: 'EXAM PREP · MADE SIMPLE',
@@ -55,4 +60,95 @@ abstract class OnboardingData {
       assetPath: 'assets/images/onboarding_4.png',
     ),
   ];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Auth State Model
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
+
+class AuthState {
+  final AuthStatus status;
+  final String? userId;
+  final String? email;
+  final String? errorMessage;
+
+  const AuthState({
+    required this.status,
+    this.userId,
+    this.email,
+    this.errorMessage,
+  });
+
+  const AuthState.initial()
+      : status = AuthStatus.initial,
+        userId = null,
+        email = null,
+        errorMessage = null;
+
+  const AuthState.loading()
+      : status = AuthStatus.loading,
+        userId = null,
+        email = null,
+        errorMessage = null;
+
+  const AuthState.authenticated({required String userId, required String email})
+      : status = AuthStatus.authenticated,
+        userId = userId,
+        email = email,
+        errorMessage = null;
+
+  const AuthState.unauthenticated()
+      : status = AuthStatus.unauthenticated,
+        userId = null,
+        email = null,
+        errorMessage = null;
+
+  AuthState copyWithError(String message) => AuthState(
+    status: AuthStatus.error,
+    errorMessage: message,
+    userId: userId,
+    email: email,
+  );
+
+  bool get isLoading => status == AuthStatus.loading;
+  bool get isAuthenticated => status == AuthStatus.authenticated;
+  bool get hasError => status == AuthStatus.error;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Firestore user profile model
+// ─────────────────────────────────────────────────────────────────────────────
+
+class StudentProfile {
+  final String uid;
+  final String email;
+  final String displayName;
+  final DateTime createdAt;
+  final bool onboardingCompleted;
+
+  const StudentProfile({
+    required this.uid,
+    required this.email,
+    required this.displayName,
+    required this.createdAt,
+    required this.onboardingCompleted,
+  });
+
+  Map<String, dynamic> toMap() => {
+    'uid': uid,
+    'email': email,
+    'displayName': displayName,
+    'createdAt': createdAt.toIso8601String(),
+    'onboardingCompleted': onboardingCompleted,
+  };
+
+  factory StudentProfile.fromMap(Map<String, dynamic> map) => StudentProfile(
+    uid: map['uid'] as String,
+    email: map['email'] as String,
+    displayName: map['displayName'] as String,
+    createdAt: DateTime.parse(map['createdAt'] as String),
+    onboardingCompleted: map['onboardingCompleted'] as bool? ?? false,
+  );
 }
