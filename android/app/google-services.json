@@ -12,7 +12,20 @@
           "package_name": "com.example.alogyan_prep"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "723181195464-6ujbilqcjaig8sf0e66h4a8dktbvgl33.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.alogyan_prep",
+            "certificate_hash": "57735aa47949754b9ff1026cbe0f2823fea20a20"
+          }
+        },
+        {
+          "client_id": "723181195464-1un2l5br1p9vj7n3qqmljquhsnqqp4u3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAZnPNTSEbnHBthJb5lUk8A_1WnNkWrSZg"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "723181195464-1un2l5br1p9vj7n3qqmljquhsnqqp4u3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "723181195464-ksspm9u1ihur3rn5rf8h51dgftq9ns0m.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.alogyanPrep"
+              }
+            }
+          ]
         }
       }
     }
