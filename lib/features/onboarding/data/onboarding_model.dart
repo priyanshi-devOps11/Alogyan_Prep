@@ -1,84 +1,95 @@
-/// Pure Dart domain layer — no Flutter or Firebase imports.
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Onboarding step enum — each screen in the multi-step flow
-// ─────────────────────────────────────────────────────────────────────────────
-
-enum OnboardingStep {
-  welcome,        // Step 0: Welcome splash + Google / Email CTA
-  name,           // Step 1/4: What should we call you?
-  verifyEmail,    // Step 2/4: Which email do you use most?
-  dateOfBirth,    // Step 3/4: When's your happy birthday?
-  educationGoal,  // Step 4/4: What are you preparing for?
-  learningStyle,  // How do you learn best?
-  currentJourney, // Where are you in your journey?
-  planReady,      // Your Personalized Study Plan Is Ready
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Education Goal option
-// ─────────────────────────────────────────────────────────────────────────────
-
-class ExamGoal {
-  final String id;
-  final String label;
-  final String iconAsset; // path to icon in assets/icons/
-  final String fallbackEmoji;
-
-  const ExamGoal({
-    required this.id,
-    required this.label,
-    required this.iconAsset,
-    required this.fallbackEmoji,
+// ─── Onboarding splash slides (dark Scapia-style) ─────────────────────────────
+class OnboardingSlide {
+  final String accentTag;
+  final String title;
+  final String subtitle;
+  final String description;
+  final String assetPath;
+  const OnboardingSlide({
+    required this.accentTag, required this.title,
+    required this.subtitle,  required this.description,
+    required this.assetPath,
   });
 }
 
+abstract class OnboardingSlidesData {
+  static const List<OnboardingSlide> slides = [
+    OnboardingSlide(
+      accentTag: 'EXAM PREP · MADE SIMPLE',
+      title: 'Master Every\nExam with Ease',
+      subtitle: 'Your smart preparation hub',
+      description: 'Access thousands of curated questions, mock tests, and study notes — all in one place.',
+      assetPath: 'assets/images/onboarding_1.png',
+    ),
+    OnboardingSlide(
+      accentTag: 'DAILY CURRENT AFFAIRS',
+      title: 'Stay Ahead,\nEvery Single Day',
+      subtitle: 'News distilled for competitive exams',
+      description: 'Get daily GK updates filtered by Economy, Politics, Science and more — no noise, just what matters.',
+      assetPath: 'assets/images/onboarding_2.png',
+    ),
+    OnboardingSlide(
+      accentTag: 'PERFORMANCE ANALYTICS',
+      title: 'Know Where\nYou Stand',
+      subtitle: 'Detailed reports & insights',
+      description: 'Track test scores, identify weak topics, and get personalised recommendations to improve faster.',
+      assetPath: 'assets/images/onboarding_3.png',
+    ),
+    OnboardingSlide(
+      accentTag: 'PDF BUNDLES & MORE',
+      title: 'All Study\nMaterial. One App.',
+      subtitle: 'Offline-ready PDF bundles',
+      description: 'Download study notes and PDF bundles. Read anytime, anywhere — even without internet.',
+      assetPath: 'assets/images/onboarding_4.png',
+    ),
+  ];
+}
+
+// ─── Profile-building flow steps ──────────────────────────────────────────────
+enum OnboardingStep {
+  splash,         // 4 dark slides
+  welcome,        // "Let's Build Your Success Journey"
+  name,           // 1/4 What should we call you?
+  verifyEmail,    // 2/4 Which email do you use most?
+  dateOfBirth,    // 3/4 When's your happy birthday?
+  educationGoal,  // 4/4 What are you preparing for?
+  learningStyle,  // How do you learn best?
+  currentJourney, // Where are you in your journey?
+  planReady,      // Your Personalized Plan Is Ready
+}
+
+// ─── Exam goals ───────────────────────────────────────────────────────────────
+class ExamGoal {
+  final String id, label, emoji;
+  const ExamGoal({required this.id, required this.label, required this.emoji});
+}
 abstract class ExamGoals {
   static const List<ExamGoal> all = [
-    ExamGoal(id: 'ssc', label: 'SSC', iconAsset: 'assets/icons/ssc.png', fallbackEmoji: '📝'),
-    ExamGoal(id: 'railway', label: 'Railway', iconAsset: 'assets/icons/railway.png', fallbackEmoji: '🚂'),
-    ExamGoal(id: 'banking', label: 'Banking', iconAsset: 'assets/icons/banking.png', fallbackEmoji: '🏦'),
-    ExamGoal(id: 'upsc', label: 'UPSC', iconAsset: 'assets/icons/upsc.png', fallbackEmoji: '🏛️'),
-    ExamGoal(id: 'state_psc', label: 'State PSC', iconAsset: 'assets/icons/state_psc.png', fallbackEmoji: '🏢'),
-    ExamGoal(id: 'teaching', label: 'Teaching', iconAsset: 'assets/icons/teaching.png', fallbackEmoji: '👨‍🏫'),
-    ExamGoal(id: 'jee', label: 'JEE', iconAsset: 'assets/icons/jee.png', fallbackEmoji: '⚙️'),
-    ExamGoal(id: 'neet', label: 'NEET', iconAsset: 'assets/icons/neet.png', fallbackEmoji: '🩺'),
+    ExamGoal(id: 'ssc',       label: 'SSC',       emoji: '📝'),
+    ExamGoal(id: 'railway',   label: 'Railway',   emoji: '🚂'),
+    ExamGoal(id: 'banking',   label: 'Banking',   emoji: '🏦'),
+    ExamGoal(id: 'upsc',      label: 'UPSC',      emoji: '🏛️'),
+    ExamGoal(id: 'state_psc', label: 'State PSC', emoji: '🏢'),
+    ExamGoal(id: 'teaching',  label: 'Teaching',  emoji: '👨‍🏫'),
+    ExamGoal(id: 'jee',       label: 'JEE',       emoji: '⚙️'),
+    ExamGoal(id: 'neet',      label: 'NEET',      emoji: '🩺'),
   ];
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Learning style option
-// ─────────────────────────────────────────────────────────────────────────────
-
-class LearningStyle {
-  final String id;
-  final String label;
-  final String emoji;
-
-  const LearningStyle({required this.id, required this.label, required this.emoji});
-}
-
+// ─── Learning styles ──────────────────────────────────────────────────────────
+class LearningStyle { final String id, label, emoji; const LearningStyle({required this.id, required this.label, required this.emoji}); }
 abstract class LearningStyles {
   static const List<LearningStyle> all = [
-    LearningStyle(id: 'video', label: 'Video Classes', emoji: '🎬'),
-    LearningStyle(id: 'mock', label: 'Mock Tests', emoji: '📊'),
-    LearningStyle(id: 'daily_quiz', label: 'Daily Quiz', emoji: '❓'),
-    LearningStyle(id: 'pdf', label: 'PDF Notes', emoji: '📄'),
-    LearningStyle(id: 'live', label: 'Live Sessions', emoji: '📡'),
+    LearningStyle(id: 'video',     label: 'Video Classes',  emoji: '🎬'),
+    LearningStyle(id: 'mock',      label: 'Mock Tests',     emoji: '📊'),
+    LearningStyle(id: 'daily_quiz',label: 'Daily Quiz',     emoji: '❓'),
+    LearningStyle(id: 'pdf',       label: 'PDF Notes',      emoji: '📄'),
+    LearningStyle(id: 'live',      label: 'Live Sessions',  emoji: '📡'),
   ];
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Current journey / class level
-// ─────────────────────────────────────────────────────────────────────────────
-
-class JourneyLevel {
-  final String id;
-  final String label;
-
-  const JourneyLevel({required this.id, required this.label});
-}
-
+// ─── Journey levels ───────────────────────────────────────────────────────────
+class JourneyLevel { final String id, label; const JourneyLevel({required this.id, required this.label}); }
 abstract class JourneyLevels {
   static const List<JourneyLevel> all = [
     JourneyLevel(id: 'class_10', label: 'Class 10'),
@@ -89,127 +100,46 @@ abstract class JourneyLevels {
   ];
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Collected onboarding data — filled step by step
-// ─────────────────────────────────────────────────────────────────────────────
-
+// ─── Collected profile data ───────────────────────────────────────────────────
 class OnboardingProfile {
-  final String? firstName;
-  final String? lastName;
-  final String? email;
+  final String? firstName, lastName, email, examGoalId, learningStyleId, journeyLevelId;
   final DateTime? dateOfBirth;
-  final String? selectedExamGoalId;
-  final String? selectedLearningStyleId;
-  final String? selectedJourneyLevelId;
-
-  const OnboardingProfile({
-    this.firstName,
-    this.lastName,
-    this.email,
-    this.dateOfBirth,
-    this.selectedExamGoalId,
-    this.selectedLearningStyleId,
-    this.selectedJourneyLevelId,
-  });
-
-  OnboardingProfile copyWith({
-    String? firstName,
-    String? lastName,
-    String? email,
-    DateTime? dateOfBirth,
-    String? selectedExamGoalId,
-    String? selectedLearningStyleId,
-    String? selectedJourneyLevelId,
-  }) =>
+  const OnboardingProfile({this.firstName, this.lastName, this.email,
+    this.examGoalId, this.learningStyleId, this.journeyLevelId, this.dateOfBirth});
+  OnboardingProfile copyWith({String? firstName, String? lastName, String? email,
+    String? examGoalId, String? learningStyleId, String? journeyLevelId, DateTime? dateOfBirth}) =>
       OnboardingProfile(
-        firstName: firstName ?? this.firstName,
-        lastName: lastName ?? this.lastName,
-        email: email ?? this.email,
+        firstName: firstName ?? this.firstName, lastName: lastName ?? this.lastName,
+        email: email ?? this.email, examGoalId: examGoalId ?? this.examGoalId,
+        learningStyleId: learningStyleId ?? this.learningStyleId,
+        journeyLevelId: journeyLevelId ?? this.journeyLevelId,
         dateOfBirth: dateOfBirth ?? this.dateOfBirth,
-        selectedExamGoalId: selectedExamGoalId ?? this.selectedExamGoalId,
-        selectedLearningStyleId:
-        selectedLearningStyleId ?? this.selectedLearningStyleId,
-        selectedJourneyLevelId:
-        selectedJourneyLevelId ?? this.selectedJourneyLevelId,
       );
-
-  String get displayName => [firstName, lastName]
-      .where((s) => s != null && s.isNotEmpty)
-      .join(' ');
-
-  Map<String, dynamic> toFirestoreMap() => {
-    'firstName': firstName ?? '',
-    'lastName': lastName ?? '',
-    'email': email ?? '',
+  String get displayName => [firstName, lastName].where((s) => s != null && s.isNotEmpty).join(' ');
+  Map<String, dynamic> toMap() => {
+    'firstName': firstName ?? '', 'lastName': lastName ?? '',
+    'email': email ?? '', 'examGoal': examGoalId,
+    'learningStyle': learningStyleId, 'journeyLevel': journeyLevelId,
     'dateOfBirth': dateOfBirth?.toIso8601String(),
-    'examGoal': selectedExamGoalId,
-    'learningStyle': selectedLearningStyleId,
-    'journeyLevel': selectedJourneyLevelId,
-    'onboardingCompleted': true,
-    'createdAt': DateTime.now().toIso8601String(),
+    'onboardingCompleted': true, 'createdAt': DateTime.now().toIso8601String(),
   };
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Auth State
-// ─────────────────────────────────────────────────────────────────────────────
-
+// ─── Auth state ───────────────────────────────────────────────────────────────
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 
 class AuthState {
   final AuthStatus status;
-  final String? userId;
-  final String? email;
-  final String? displayName;
-  final String? errorMessage;
-
-  const AuthState({
-    required this.status,
-    this.userId,
-    this.email,
-    this.displayName,
-    this.errorMessage,
-  });
-
-  const AuthState.initial()
-      : status = AuthStatus.initial,
-        userId = null,
-        email = null,
-        displayName = null,
-        errorMessage = null;
-
-  const AuthState.loading()
-      : status = AuthStatus.loading,
-        userId = null,
-        email = null,
-        displayName = null,
-        errorMessage = null;
-
-  AuthState.authenticated({
-    required String userId,
-    required String email,
-    String? displayName,
-  })  : status = AuthStatus.authenticated,
-        userId = userId,
-        email = email,
-        displayName = displayName,
-        errorMessage = null;
-
-  const AuthState.unauthenticated()
-      : status = AuthStatus.unauthenticated,
-        userId = null,
-        email = null,
-        displayName = null,
-        errorMessage = null;
-
-  AuthState copyWithError(String message) => AuthState(
-    status: AuthStatus.error,
-    userId: userId,
-    email: email,
-    displayName: displayName,
-    errorMessage: message,
-  );
-
+  final String? userId, email, displayName, errorMessage;
+  const AuthState({required this.status, this.userId, this.email, this.displayName, this.errorMessage});
+  const AuthState.initial()        : status = AuthStatus.initial,        userId = null, email = null, displayName = null, errorMessage = null;
+  const AuthState.loading()        : status = AuthStatus.loading,        userId = null, email = null, displayName = null, errorMessage = null;
+  const AuthState.unauthenticated(): status = AuthStatus.unauthenticated, userId = null, email = null, displayName = null, errorMessage = null;
+  AuthState.authenticated({required String userId, required String email, String? displayName})
+      : status = AuthStatus.authenticated, userId = userId, email = email,
+        displayName = displayName, errorMessage = null;
+  AuthState copyWithError(String msg) => AuthState(status: AuthStatus.error,
+      userId: userId, email: email, displayName: displayName, errorMessage: msg);
   bool get isLoading => status == AuthStatus.loading;
   bool get isAuthenticated => status == AuthStatus.authenticated;
   bool get hasError => status == AuthStatus.error;

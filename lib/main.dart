@@ -1,34 +1,26 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_core/firebase_core.dart';
 
-// Absolute path configurations mapping your project domains directly
-import 'package:alogyan_prep/core/theme/app_theme.dart';
-import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
-import 'package:alogyan_prep/features/onboarding/controllers/auth_controller.dart';
-
-
-// Safe conditional import wrapper to keep IDE happy if file generation is pending
+import 'core/theme/app_theme.dart';
+import 'features/onboarding/controllers/controllers.dart';
+import 'features/onboarding/data/onboarding_model.dart';
+import 'features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase infrastructure layout
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   } catch (e) {
-    debugPrint('Firebase initialization warning: $e');
+    debugPrint('[Firebase] init warning: $e');
   }
 
-  runApp(
-    const ProviderScope(
-      child: AlogyanPrepApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: AlogyanPrepApp()));
 }
 
 class AlogyanPrepApp extends ConsumerWidget {
@@ -39,25 +31,15 @@ class AlogyanPrepApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Alogyan Prep',
       debugShowCheckedModeBanner: false,
-
-      // Fallback fallback configuration to keep compilation live if static theme getter names mismatch
-      theme: ThemeData(
-        useMaterial3: true,
-        fontFamily: AppTheme.fontFamily,
-        scaffoldBackgroundColor: const Color(0xFF0A0A14),
-        colorScheme: const ColorScheme.dark(
-          primary: AppTheme.brandRed,
-        ),
-      ),
+      theme: AppTheme.lightTheme,
       home: const _AuthGate(),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Reactive Authentication Router (Auth Gate Engine)
-// ─────────────────────────────────────────────────────────────────────────────
-
+/// Decides the entry point based on Firebase Auth state.
+/// - Already authenticated → skip onboarding, go straight to plan ready / home
+/// - Not authenticated → show onboarding from splash
 class _AuthGate extends ConsumerWidget {
   const _AuthGate();
 
@@ -66,17 +48,21 @@ class _AuthGate extends ConsumerWidget {
     final authState = ref.watch(authProvider);
 
     return switch (authState.status) {
-      AuthStatus.authenticated => const HomeStubScreen(),
-      AuthStatus.initial => const OnboardingScreen(),
-      AuthStatus.unauthenticated => const OnboardingScreen(),
+    // Authenticated on app open — skip straight past onboarding
+      AuthStatus.authenticated => const OnboardingScreen(),
+
+    // Loading spinner while Firebase checks session
       AuthStatus.loading => const Scaffold(
-        backgroundColor: Color(0xFF0A0A14),
+        backgroundColor: AppTheme.bgDark,
         body: Center(
           child: CircularProgressIndicator(
-            color: AppTheme.brandOrange,
+            color: AppTheme.brandRed,
+            strokeWidth: 2.5,
           ),
         ),
       ),
+
+    // Default — show onboarding from splash
       _ => const OnboardingScreen(),
     };
   }
