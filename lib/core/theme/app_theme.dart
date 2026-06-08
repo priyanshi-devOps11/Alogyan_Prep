@@ -111,6 +111,7 @@ abstract class AppTheme {
   static const double s32 = 32.0;
   static const double s40 = 40.0;
   static const double s48 = 48.0;
+  static const double s80 = 80.0;
 
   // ── Radii ─────────────────────────────────────────────────────────────────
   static const double radiusS      = 8.0;
