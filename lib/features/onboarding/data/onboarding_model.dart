@@ -38,8 +38,8 @@ abstract class OnboardingSlidesData {
     OnboardingSlide(
       accentTag: 'PDF BUNDLES & MORE',
       title: 'All Study\nMaterial. One App.',
-      subtitle: 'Offline-ready PDF bundles',
-      description: 'Download study notes and PDF bundles. Read anytime, anywhere — even without internet.',
+      subtitle: 'Offline-ready PDF bundle_listing',
+      description: 'Download study notes and PDF bundle_listing. Read anytime, anywhere — even without internet.',
       assetPath: 'assets/images/onboarding_4.png',
     ),
   ];
@@ -100,7 +100,7 @@ abstract class JourneyLevels {
   ];
 }
 
-// ─── Collected profile data ───────────────────────────────────────────────────
+// ─── Collected profile models ───────────────────────────────────────────────────
 class OnboardingProfile {
   final String? firstName, lastName, email, examGoalId, learningStyleId, journeyLevelId;
   final DateTime? dateOfBirth;
@@ -125,22 +125,3 @@ class OnboardingProfile {
   };
 }
 
-// ─── Auth state ───────────────────────────────────────────────────────────────
-enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
-
-class AuthState {
-  final AuthStatus status;
-  final String? userId, email, displayName, errorMessage;
-  const AuthState({required this.status, this.userId, this.email, this.displayName, this.errorMessage});
-  const AuthState.initial()        : status = AuthStatus.initial,        userId = null, email = null, displayName = null, errorMessage = null;
-  const AuthState.loading()        : status = AuthStatus.loading,        userId = null, email = null, displayName = null, errorMessage = null;
-  const AuthState.unauthenticated(): status = AuthStatus.unauthenticated, userId = null, email = null, displayName = null, errorMessage = null;
-  AuthState.authenticated({required String userId, required String email, String? displayName})
-      : status = AuthStatus.authenticated, userId = userId, email = email,
-        displayName = displayName, errorMessage = null;
-  AuthState copyWithError(String msg) => AuthState(status: AuthStatus.error,
-      userId: userId, email: email, displayName: displayName, errorMessage: msg);
-  bool get isLoading => status == AuthStatus.loading;
-  bool get isAuthenticated => status == AuthStatus.authenticated;
-  bool get hasError => status == AuthStatus.error;
-}

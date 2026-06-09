@@ -3,9 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:alogyan_prep/core/theme/app_theme.dart';
 import 'package:alogyan_prep/features/onboarding/controllers/controllers.dart';
 import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
-import 'package:alogyan_prep/features/bundles/presentation/screens/bundle_listing_screen.dart';
+import 'package:alogyan_prep/features/bundle_listing/presentation/screens/bundle_listing_screen.dart';
 
-/// Real Home Screen — navigates to Bundle Listing (ALO-002).
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -13,10 +12,12 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authProvider);
 
+    // ── SIGN OUT FIX: listen and navigate away on signout ─────────────────
     ref.listen(authProvider, (_, next) {
       if (next.status == AuthStatus.unauthenticated) {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const _LoginRedirect()),
+          MaterialPageRoute(
+              builder: (_) => const _SignedOutPlaceholder()),
               (_) => false,
         );
       }
@@ -30,32 +31,63 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Header ────────────────────────────────────────────────────
+              // ── Header ──────────────────────────────────────────────────
               Row(children: [
-                Container(
-                  width: 38, height: 38,
-                  decoration: BoxDecoration(
-                    color: AppTheme.brandRed,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusS),
-                  ),
-                  child: const Icon(Icons.school_rounded, color: Colors.white, size: 20),
-                ),
+                Container(width: 38, height: 38,
+                    decoration: BoxDecoration(color: AppTheme.brandRed,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusS)),
+                    child: const Icon(Icons.school_rounded,
+                        color: Colors.white, size: 20)),
                 const SizedBox(width: 10),
                 Text('Alogyan Prep',
-                    style: AppTheme.labelMedium.copyWith(
-                        fontSize: 17, fontWeight: FontWeight.w700)),
+                    style: AppTheme.labelMedium
+                        .copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
                 const Spacer(),
+                // ── Sign Out Button — FIXED ────────────────────────────
                 GestureDetector(
-                  onTap: () => ref.read(authProvider.notifier).signOut(),
+                  onTap: () async {
+                    // Show confirmation dialog
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        backgroundColor: AppTheme.bgWhite,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppTheme.radiusL)),
+                        title: Text('Sign Out',
+                            style: AppTheme.headingLight.copyWith(fontSize: 18)),
+                        content: Text('Are you sure you want to sign out?',
+                            style: AppTheme.bodyLight),
+                        actions: [
+                          TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: Text('Cancel',
+                                  style: AppTheme.labelMedium
+                                      .copyWith(color: AppTheme.textMuted))),
+                          TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: Text('Sign Out',
+                                  style: AppTheme.labelMedium
+                                      .copyWith(color: AppTheme.brandRed))),
+                        ],
+                      ),
+                    );
+                    if (confirm == true && context.mounted) {
+                      await ref.read(authProvider.notifier).signOut();
+                    }
+                  },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 7),
                     decoration: BoxDecoration(
                       color: AppTheme.bgWhite,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusCircle),
+                      borderRadius:
+                      BorderRadius.circular(AppTheme.radiusCircle),
                       border: Border.all(color: AppTheme.borderLight),
+                      boxShadow: AppTheme.cardShadow,
                     ),
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
-                      const Icon(Icons.logout_rounded, size: 14, color: AppTheme.brandRed),
+                      const Icon(Icons.logout_rounded,
+                          size: 14, color: AppTheme.brandRed),
                       const SizedBox(width: 5),
                       Text('Sign out',
                           style: AppTheme.labelMedium.copyWith(
@@ -67,16 +99,18 @@ class HomeScreen extends ConsumerWidget {
 
               const SizedBox(height: AppTheme.s24),
 
-              // ── Welcome ───────────────────────────────────────────────────
+              // ── Welcome ──────────────────────────────────────────────
               Text('Welcome back! 👋',
                   style: AppTheme.displayLight.copyWith(fontSize: 24)),
               const SizedBox(height: AppTheme.s4),
-              Text(auth.email ?? '',
-                  style: AppTheme.bodyLight.copyWith(color: AppTheme.textMuted)),
+              if (auth.email != null)
+                Text(auth.email!,
+                    style: AppTheme.bodyLight
+                        .copyWith(color: AppTheme.textMuted)),
 
               const SizedBox(height: AppTheme.s32),
 
-              // ── Quick actions ─────────────────────────────────────────────
+              // ── Quick Actions ────────────────────────────────────────
               _QuickAction(
                 icon: Icons.menu_book_rounded,
                 title: 'Study Bundles',
@@ -84,7 +118,8 @@ class HomeScreen extends ConsumerWidget {
                 color: AppTheme.brandRed,
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const BundleListingScreen()),
+                  MaterialPageRoute(
+                      builder: (_) => const BundleListingScreen()),
                 ),
               ),
               const SizedBox(height: AppTheme.s12),
@@ -112,13 +147,8 @@ class HomeScreen extends ConsumerWidget {
 }
 
 class _QuickAction extends StatelessWidget {
-  const _QuickAction({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-    required this.onTap,
-  });
+  const _QuickAction({required this.icon, required this.title,
+    required this.subtitle, required this.color, required this.onTap});
   final IconData icon;
   final String title, subtitle;
   final Color color;
@@ -135,22 +165,19 @@ class _QuickAction extends StatelessWidget {
         boxShadow: AppTheme.cardShadow,
       ),
       child: Row(children: [
-        Container(
-          width: 44, height: 44,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(AppTheme.radiusM),
-          ),
-          child: Icon(icon, color: color, size: 22),
-        ),
+        Container(width: 44, height: 44,
+            decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(AppTheme.radiusM)),
+            child: Icon(icon, color: color, size: 22)),
         const SizedBox(width: AppTheme.s16),
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: AppTheme.labelMedium),
-            Text(subtitle,
-                style: AppTheme.bodySmall.copyWith(color: AppTheme.textMuted)),
-          ]),
-        ),
+        Expanded(child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(title, style: AppTheme.labelMedium),
+          Text(subtitle,
+              style: AppTheme.bodySmall
+                  .copyWith(color: AppTheme.textMuted)),
+        ])),
         const Icon(Icons.arrow_forward_ios_rounded,
             size: 14, color: AppTheme.textMuted),
       ]),
@@ -158,12 +185,34 @@ class _QuickAction extends StatelessWidget {
   );
 }
 
-class _LoginRedirect extends StatelessWidget {
-  const _LoginRedirect();
+// Shown after sign out — redirects to onboarding
+class _SignedOutPlaceholder extends ConsumerWidget {
+  const _SignedOutPlaceholder();
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    backgroundColor: AppTheme.bgSoft,
-    body: Center(
-        child: CircularProgressIndicator(color: AppTheme.brandRed)),
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Redirect to onboarding flow
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(flowProvider.notifier).goTo(OnboardingStep.welcome);
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const _OnboardingRedirect()),
+            (_) => false,
+      );
+    });
+    return const Scaffold(
+      backgroundColor: AppTheme.bgSoft,
+      body: Center(child: CircularProgressIndicator(color: AppTheme.brandRed)),
+    );
+  }
+}
+
+class _OnboardingRedirect extends StatelessWidget {
+  const _OnboardingRedirect();
+  @override
+  Widget build(BuildContext context) {
+    // Import onboarding screen in your project and return it here
+    return const Scaffold(
+      backgroundColor: AppTheme.bgSoft,
+      body: Center(child: CircularProgressIndicator(color: AppTheme.brandRed)),
+    );
+  }
 }

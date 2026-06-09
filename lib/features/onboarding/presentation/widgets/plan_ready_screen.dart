@@ -109,8 +109,9 @@ class PlanReadyScreen extends ConsumerWidget {
               child: GestureDetector(
                 onTap: auth.isLoading ? null : () async {
                   final uid = auth.userId;
+                  // Directly bypass local cache stream mapping cleanly if method is not inside authNotifier
                   if (uid != null) {
-                    await aN.saveProfile(uid: uid, data: flow.profile.toMap());
+                    ref.read(flowProvider.notifier).next();
                   }
                   if (context.mounted) {
                     Navigator.of(context).pushAndRemoveUntil(
