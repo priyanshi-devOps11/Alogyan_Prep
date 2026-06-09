@@ -4,6 +4,7 @@ import '../../controllers/controllers.dart';
 import '../../data/onboarding_model.dart';
 import 'splash_screen.dart';
 import 'step_screens.dart';
+import '../widgets/plan_ready_screen.dart';
 
 /// Root router. Watches [flowProvider] and shows the correct screen.
 /// All transitions use a smooth fade+slide animation.

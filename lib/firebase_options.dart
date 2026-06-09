@@ -57,7 +57,6 @@ class DefaultFirebaseOptions {
     projectId: 'alogyan-prep1',
     storageBucket: 'alogyan-prep1.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDOJbgxDAHrXY3O6aDnBnPFNhn3xjTTZqI',
     appId: '1:723181195464:ios:f3cb6d3fd5afa2389555fd',

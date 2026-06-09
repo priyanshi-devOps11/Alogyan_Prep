@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:alogyan_prep/core/theme/app_theme.dart';
 import 'package:alogyan_prep/features/onboarding/controllers/controllers.dart';
 import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
+import 'package:alogyan_prep/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:alogyan_prep/features/home_screen.dart';
 
 class PlanReadyScreen extends ConsumerWidget {

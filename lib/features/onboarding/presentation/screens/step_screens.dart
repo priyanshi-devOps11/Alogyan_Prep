@@ -125,7 +125,7 @@ class _NameState extends ConsumerState<NameStepScreen> {
                 hint: 'First Name',
                 prefix: Icons.person_outline_rounded,
                 focusNode: _firstFocus,
-                textInputAction: TextInputAction.next,
+                action: TextInputAction.next,
                 onSubmit: (_) => FocusScope.of(context).requestFocus(_lastFocus),
                 validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter your first name' : null,
               ),
