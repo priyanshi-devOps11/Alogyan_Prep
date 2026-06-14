@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "723181195464",
+    "firebase_url": "https://alogyan-prep1-default-rtdb.firebaseio.com",
     "project_id": "alogyan-prep1",
     "storage_bucket": "alogyan-prep1.firebasestorage.app"
   },
