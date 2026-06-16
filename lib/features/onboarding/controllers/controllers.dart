@@ -353,6 +353,8 @@ class AuthNotifier extends Notifier<AuthState> {
         isOnboardingCompleted: false,
       ), isNew: true);
       await _repo.sendVerificationEmail();
+
+      ref.read(flowProvider.notifier).goTo(OnboardingStep.verifyEmail);
       state = const AuthState.unauthenticated().copyWithPending(uid, email);
       return true;
     } on AuthException catch (e) {
@@ -363,9 +365,13 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   // ── Poll email verified ────────────────────────────────────────────────────
+  // checkEmailVerified() :
   Future<bool> checkEmailVerified() async {
     final verified = await _repo.checkEmailVerified();
     if (verified && state.userId != null) {
+      // KEY FIX (Point 4): transition flow BEFORE setting authenticated
+      // so the router has a destination before the widget tree reacts.
+      ref.read(flowProvider.notifier).goTo(OnboardingStep.dateOfBirth);
       state = AuthState.authenticated(
         userId: state.userId!,
         email:  state.email ?? '',
