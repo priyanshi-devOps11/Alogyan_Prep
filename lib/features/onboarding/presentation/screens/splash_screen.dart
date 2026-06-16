@@ -99,7 +99,7 @@ class SplashScreen extends ConsumerWidget {
                 PageDotIndicator(total: state.total, current: state.index),
                 _ActionButton(
                   isLast: state.isLast,
-                  onNext: notifier.next,
+                  onNext: () => ref.read(splashProvider.notifier).nextPage(),
                   onGetStarted: () {
                     flow.goTo(OnboardingStep.welcome);
                   },

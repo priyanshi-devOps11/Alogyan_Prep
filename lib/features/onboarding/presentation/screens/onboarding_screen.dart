@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../controllers/controllers.dart';
-import '../../data/onboarding_model.dart';
-import 'splash_screen.dart';
-import 'step_screens.dart';
-import '../widgets/plan_ready_screen.dart';
 
-/// Root router. Watches [flowProvider] and shows the correct screen.
-/// All transitions use a smooth fade+slide animation.
+// Clean logic and models imports
+import 'package:alogyan_prep/features/onboarding/controllers/controllers.dart';
+import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
+
+// Absolute clean paths pointing to your files
+import 'package:alogyan_prep/features/onboarding/presentation/screens/splash_screen.dart';
+import 'package:alogyan_prep/features/onboarding/presentation/screens/step_screens.dart';
+import 'package:alogyan_prep/features/onboarding/presentation/screens/email_verify_screen.dart';
+import 'package:alogyan_prep/features/onboarding/presentation/screens/plan_ready_screen.dart';
+
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
 
@@ -20,8 +23,10 @@ class OnboardingScreen extends ConsumerWidget {
       transitionBuilder: (child, animation) => FadeTransition(
         opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
         child: SlideTransition(
-          position: Tween<Offset>(begin: const Offset(0.04, 0), end: Offset.zero)
-              .animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+          position: Tween<Offset>(
+            begin: const Offset(0.04, 0),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
           child: child,
         ),
       ),
@@ -29,15 +34,26 @@ class OnboardingScreen extends ConsumerWidget {
     );
   }
 
+  /// Exhaustive mapping of every [OnboardingStep] to its screen widget.
   Widget _screen(OnboardingStep step) => switch (step) {
-    OnboardingStep.splash         => const SplashScreen(key: ValueKey('splash')),
-    OnboardingStep.welcome        => const WelcomeScreen(key: ValueKey('welcome')),
-    OnboardingStep.name           => const NameStepScreen(key: ValueKey('name')),
-    OnboardingStep.verifyEmail    => const EmailStepScreen(key: ValueKey('email')),
-    OnboardingStep.dateOfBirth    => const DobStepScreen(key: ValueKey('dob')),
-    OnboardingStep.educationGoal  => const ExamGoalScreen(key: ValueKey('goal')),
-    OnboardingStep.learningStyle  => const LearningStyleScreen(key: ValueKey('learning')),
-    OnboardingStep.currentJourney => const JourneyScreen(key: ValueKey('journey')),
-    OnboardingStep.planReady      => const PlanReadyScreen(key: ValueKey('plan')),
+    OnboardingStep.splash =>
+    const SplashScreen(key: ValueKey('splash')),
+    OnboardingStep.welcome =>
+    const WelcomeScreen(key: ValueKey('welcome')),
+    OnboardingStep.name =>
+    const NameStepScreen(key: ValueKey('name')),
+    OnboardingStep.verifyEmail =>
+    const EmailStepScreen(key: ValueKey('email')),
+    OnboardingStep.emailVerifyWait => const EmailVerifyWaitScreen(key: ValueKey('verify_wait')),
+    OnboardingStep.dateOfBirth =>
+    const DobStepScreen(key: ValueKey('dob')),
+    OnboardingStep.educationGoal =>
+    const ExamGoalScreen(key: ValueKey('goal')),
+    OnboardingStep.learningStyle =>
+    const LearningStyleScreen(key: ValueKey('learning')),
+    OnboardingStep.currentJourney =>
+    const JourneyScreen(key: ValueKey('journey')),
+    OnboardingStep.planReady =>
+    const PlanReadyScreen(key: ValueKey('plan')),
   };
 }

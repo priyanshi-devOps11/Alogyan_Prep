@@ -1,121 +1,86 @@
-/// Strong user model — stored in Firestore `students` collection.
-/// Every field is documented. Backend metadata (createdAt etc.) stored
-/// but NEVER shown in UI.
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+/// Firestore user document — collection: 'students'
 class UserModel {
   final String uid;
   final String email;
   final String firstName;
   final String lastName;
   final String? phoneNumber;
-  final DateTime? dateOfBirth;
-  final String? examGoalId;
-  final String? learningStyleId;
-  final String? journeyLevelId;
-  final String? profilePhotoUrl;
-  final bool onboardingCompleted;
-  final bool emailVerified;
-  final String authProvider; // 'email', 'google', 'phone'
-  final DateTime createdAt;
-  final DateTime? lastLoginAt;
+  final String? dob;
+  final String? selectedExamGoalId;
+  final String? selectedLearningStyleId;
+  final String? selectedJourneyLevelId;
+  final bool isOnboardingCompleted;
+  final String authProvider; // 'email' | 'google' | 'phone'
 
   const UserModel({
     required this.uid,
     required this.email,
-    required this.firstName,
-    required this.lastName,
+    this.firstName = '',
+    this.lastName = '',
     this.phoneNumber,
-    this.dateOfBirth,
-    this.examGoalId,
-    this.learningStyleId,
-    this.journeyLevelId,
-    this.profilePhotoUrl,
-    this.onboardingCompleted = false,
-    this.emailVerified = false,
+    this.dob,
+    this.selectedExamGoalId,
+    this.selectedLearningStyleId,
+    this.selectedJourneyLevelId,
+    this.isOnboardingCompleted = false,
     this.authProvider = 'email',
-    required this.createdAt,
-    this.lastLoginAt,
   });
 
-  String get displayName => [firstName, lastName]
-      .where((s) => s.isNotEmpty)
-      .join(' ');
-
-  String get initials {
-    final f = firstName.isNotEmpty ? firstName[0].toUpperCase() : '';
-    final l = lastName.isNotEmpty ? lastName[0].toUpperCase() : '';
-    return '$f$l'.isNotEmpty ? '$f$l' : email[0].toUpperCase();
+  String get displayName {
+    final n = [firstName, lastName]
+        .where((s) => s.isNotEmpty)
+        .join(' ');
+    return n.isNotEmpty ? n : email;
   }
 
-  // ── Firestore serialization ──────────────────────────────────────────────
-
-  Map<String, dynamic> toFirestore() => {
-    'uid': uid,
-    'email': email,
-    'firstName': firstName,
-    'lastName': lastName,
-    'phoneNumber': phoneNumber,
-    'dateOfBirth': dateOfBirth?.toIso8601String(),
-    'examGoalId': examGoalId,
-    'learningStyleId': learningStyleId,
-    'journeyLevelId': journeyLevelId,
-    'profilePhotoUrl': profilePhotoUrl,
-    'onboardingCompleted': onboardingCompleted,
-    'emailVerified': emailVerified,
-    'authProvider': authProvider,
-    'createdAt': createdAt.toIso8601String(),
-    'lastLoginAt': lastLoginAt?.toIso8601String(),
-  };
+  Map<String, dynamic> toFirestoreMap({bool isNew = false}) {
+    final map = <String, dynamic>{
+      'uid':                     uid,
+      'email':                   email,
+      'firstName':               firstName,
+      'lastName':                lastName,
+      'phoneNumber':             phoneNumber,
+      'dob':                     dob,
+      'selectedExamGoalId':      selectedExamGoalId,
+      'selectedLearningStyleId': selectedLearningStyleId,
+      'selectedJourneyLevelId':  selectedJourneyLevelId,
+      'isOnboardingCompleted':   isOnboardingCompleted,
+      'authProvider':            authProvider,
+      'lastUpdated':             FieldValue.serverTimestamp(),
+    };
+    if (isNew) map['createdAt'] = FieldValue.serverTimestamp();
+    return map;
+  }
 
   factory UserModel.fromFirestore(Map<String, dynamic> map) => UserModel(
-    uid: map['uid'] ?? '',
-    email: map['email'] ?? '',
-    firstName: map['firstName'] ?? '',
-    lastName: map['lastName'] ?? '',
-    phoneNumber: map['phoneNumber'],
-    dateOfBirth: map['dateOfBirth'] != null
-        ? DateTime.tryParse(map['dateOfBirth'])
-        : null,
-    examGoalId: map['examGoalId'],
-    learningStyleId: map['learningStyleId'],
-    journeyLevelId: map['journeyLevelId'],
-    profilePhotoUrl: map['profilePhotoUrl'],
-    onboardingCompleted: map['onboardingCompleted'] ?? false,
-    emailVerified: map['emailVerified'] ?? false,
-    authProvider: map['authProvider'] ?? 'email',
-    createdAt: DateTime.tryParse(map['createdAt'] ?? '') ?? DateTime.now(),
-    lastLoginAt: map['lastLoginAt'] != null
-        ? DateTime.tryParse(map['lastLoginAt'])
-        : null,
+    uid:                     (map['uid']   as String?)  ?? '',
+    email:                   (map['email'] as String?)  ?? '',
+    firstName:               (map['firstName'] as String?) ?? '',
+    lastName:                (map['lastName']  as String?) ?? '',
+    phoneNumber:             map['phoneNumber'] as String?,
+    dob:                     map['dob'] as String?,
+    selectedExamGoalId:      map['selectedExamGoalId']      as String?,
+    selectedLearningStyleId: map['selectedLearningStyleId'] as String?,
+    selectedJourneyLevelId:  map['selectedJourneyLevelId']  as String?,
+    isOnboardingCompleted:   (map['isOnboardingCompleted'] as bool?) ?? false,
+    authProvider:            (map['authProvider'] as String?) ?? 'email',
   );
 
   UserModel copyWith({
-    String? firstName,
-    String? lastName,
-    String? phoneNumber,
-    DateTime? dateOfBirth,
-    String? examGoalId,
-    String? learningStyleId,
-    String? journeyLevelId,
-    String? profilePhotoUrl,
-    bool? onboardingCompleted,
-    bool? emailVerified,
-    DateTime? lastLoginAt,
-  }) =>
-      UserModel(
-        uid: uid,
-        email: email,
-        firstName: firstName ?? this.firstName,
-        lastName: lastName ?? this.lastName,
-        phoneNumber: phoneNumber ?? this.phoneNumber,
-        dateOfBirth: dateOfBirth ?? this.dateOfBirth,
-        examGoalId: examGoalId ?? this.examGoalId,
-        learningStyleId: learningStyleId ?? this.learningStyleId,
-        journeyLevelId: journeyLevelId ?? this.journeyLevelId,
-        profilePhotoUrl: profilePhotoUrl ?? this.profilePhotoUrl,
-        onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
-        emailVerified: emailVerified ?? this.emailVerified,
-        authProvider: authProvider,
-        createdAt: createdAt,
-        lastLoginAt: lastLoginAt ?? this.lastLoginAt,
-      );
+    String? firstName, String? lastName, String? phoneNumber, String? dob,
+    String? selectedExamGoalId, String? selectedLearningStyleId,
+    String? selectedJourneyLevelId, bool? isOnboardingCompleted,
+  }) => UserModel(
+    uid: uid, email: email, authProvider: authProvider,
+    firstName:               firstName               ?? this.firstName,
+    lastName:                lastName                ?? this.lastName,
+    phoneNumber:             phoneNumber             ?? this.phoneNumber,
+    dob:                     dob                     ?? this.dob,
+    selectedExamGoalId:      selectedExamGoalId      ?? this.selectedExamGoalId,
+    selectedLearningStyleId: selectedLearningStyleId ?? this.selectedLearningStyleId,
+    selectedJourneyLevelId:  selectedJourneyLevelId  ?? this.selectedJourneyLevelId,
+    isOnboardingCompleted:   isOnboardingCompleted   ?? this.isOnboardingCompleted,
+  );
 }

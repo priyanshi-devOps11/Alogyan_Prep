@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme/app_theme.dart';
 import 'features/onboarding/controllers/controllers.dart';
-import 'features/onboarding/data/onboarding_model.dart';
+import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
 import 'features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'firebase_options.dart';
 

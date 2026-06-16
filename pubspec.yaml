@@ -50,6 +50,6 @@ flutter:
 
   # ── Project Directory Static Asset Setup ───────────────────────────────────
   assets:
+    - assets/icons/
     - assets/images/
     - assets/fonts/
-    - assets/icons/
