@@ -1,16 +1,6 @@
-// ════════════════════════════════════════════════════════════════════════════
-// auth_repository.dart
-// KEY FIX (Point 3): sendPhoneOtp checks for the whitelisted test number
-// BEFORE calling Firebase verifyPhoneNumber. If the number matches, it
-// immediately fires onCodeSent with a known static verificationId
-// ('whitelisted-test-session') bypassing the network carrier pipeline
-// entirely — zero billing, zero reCAPTCHA, zero BILLING_NOT_ENABLED.
-//
-// On the verify side, verifyPhoneOtp detects this same static id and
-// calls signInWithPhoneNumber using the test credential directly, which
-// Firebase resolves locally from its test number registry.
-// ════════════════════════════════════════════════════════════════════════════
 
+// ════════════════════════════════════════════════════════════════════════════
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -109,7 +99,18 @@ class FirebaseAuthRepository implements AuthRepository {
   // ── Email verification ────────────────────────────────────────────────────
   @override
   Future<void> sendVerificationEmail() async {
-    try { await _auth.currentUser?.sendEmailVerification(); } catch (_) {}
+    try {
+      await _auth.currentUser?.sendEmailVerification(
+        ActionCodeSettings(
+          url: 'https://alogyanprep.page.link/verify', // your Firebase Dynamic Link domain
+          handleCodeInApp: true,
+          androidPackageName: 'com.alogyan.prep',      // your actual package name from AndroidManifest
+          androidInstallApp: true,
+          androidMinimumVersion: '1',
+          iOSBundleId: 'com.alogyan.prep',             // only if you have iOS
+        ),
+      );
+    } catch (_) {}
   }
 
   @override
@@ -202,33 +203,48 @@ class FirebaseAuthRepository implements AuthRepository {
     required String smsCode,
   }) async {
     try {
-      // ── HARDCODED FALLBACK: match whitelisted session ─────────────────
-      if (verificationId == _kWhitelistVerificationId &&
-          smsCode == _kWhitelistOtp) {
-        // Sign in using Firebase's whitelisted test credential.
-        // Firebase resolves this locally — no network hit required.
-        final cred = PhoneAuthProvider.credential(
-          // Firebase test number registered in Console uses a real
-          // verificationId — we need to trigger the actual Firebase path.
-          // So we re-run verifyPhoneNumber internally with the known number.
-          verificationId: verificationId,
-          smsCode: smsCode,
+      // ── WHITELIST: use Firebase test credentials directly ─────────────
+      if (verificationId == _kWhitelistVerificationId) {
+        // For whitelisted numbers, Firebase needs us to re-trigger
+        // verifyPhoneNumber internally to get a real verificationId,
+        // then sign in with the known test OTP.
+        final completer = Completer<String>();
+
+        await _auth.verifyPhoneNumber(
+          phoneNumber: _kWhitelistPhone,
+          timeout: const Duration(seconds: 30),
+          verificationCompleted: (_) {},
+          verificationFailed: (e) =>
+              completer.completeError(AuthException(_map(e.code))),
+          codeSent: (realVid, _) async {
+            try {
+              final cred = PhoneAuthProvider.credential(
+                verificationId: realVid,
+                smsCode: _kWhitelistOtp,
+              );
+              final c = await _auth.signInWithCredential(cred);
+              _touch(c.user!.uid);
+              completer.complete(c.user!.uid);
+            } catch (e) {
+              completer.completeError(
+                  AuthException('Test sign-in failed: $e'));
+            }
+          },
+          codeAutoRetrievalTimeout: (_) {},
         );
-        // For whitelisted numbers, Firebase accepts the OTP directly.
-        // Fall through to the standard signInWithCredential below.
-        final c = await _auth.signInWithCredential(cred);
-        _touch(c.user!.uid);
-        return c.user!.uid;
+
+        return await completer.future;
       }
 
       // ── Live path ─────────────────────────────────────────────────────
       final cred = PhoneAuthProvider.credential(
         verificationId: verificationId,
-        smsCode:        smsCode,
+        smsCode: smsCode,
       );
       final c = await _auth.signInWithCredential(cred);
       _touch(c.user!.uid);
       return c.user!.uid;
+
     } on FirebaseAuthException catch (e) {
       throw AuthException(_map(e.code));
     }

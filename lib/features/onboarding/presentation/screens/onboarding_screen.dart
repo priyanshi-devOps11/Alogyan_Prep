@@ -8,7 +8,6 @@ import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
 // Absolute clean paths pointing to your files
 import 'package:alogyan_prep/features/onboarding/presentation/screens/splash_screen.dart';
 import 'package:alogyan_prep/features/onboarding/presentation/screens/step_screens.dart';
-import 'package:alogyan_prep/features/onboarding/presentation/screens/email_verify_screen.dart';
 import 'package:alogyan_prep/features/onboarding/presentation/screens/plan_ready_screen.dart';
 
 class OnboardingScreen extends ConsumerWidget {

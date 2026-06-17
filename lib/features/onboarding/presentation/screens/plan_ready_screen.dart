@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:alogyan_prep/core/theme/app_theme.dart';
 import 'package:alogyan_prep/features/onboarding/controllers/controllers.dart';
 import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
-import 'package:alogyan_prep/features/onboarding/presentation/screens/onboarding_screen.dart';
-import 'package:alogyan_prep/features/home_screen.dart';
+
 
 class PlanReadyScreen extends ConsumerWidget {
   const PlanReadyScreen({super.key});
@@ -108,17 +107,11 @@ class PlanReadyScreen extends ConsumerWidget {
               width: double.infinity, height: 52,
               child: GestureDetector(
                 onTap: auth.isLoading ? null : () async {
-                  final uid = auth.userId;
-                  // Directly bypass local cache stream mapping cleanly if method is not inside authNotifier
-                  if (uid != null) {
-                    ref.read(flowProvider.notifier).next();
-                  }
-                  if (context.mounted) {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => const HomeScreen()),
-                          (_) => false,
-                    );
-                  }
+                  // This saves isOnboardingCompleted: true to Firestore AND
+                  // sets AuthState.authenticated with updated userModel.
+                  // _AuthGate then sees isOnboardingCompleted == true and routes
+                  // to BundleListingScreen automatically — no Navigator needed.
+                  await ref.read(authProvider.notifier).completeOnboarding();
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),

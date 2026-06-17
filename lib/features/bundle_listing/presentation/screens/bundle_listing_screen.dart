@@ -4,6 +4,7 @@ import 'package:alogyan_prep/core/theme/app_theme.dart';
 import 'package:alogyan_prep/features/bundle_listing/controllers/bundle_controller.dart';
 import 'package:alogyan_prep/features/bundle_listing/models/bundle_model.dart';
 import 'package:alogyan_prep/features/bundle_listing/widgets/bundle_widgets.dart';
+import 'package:alogyan_prep/features/onboarding/controllers/controllers.dart';
 
 class BundleListingScreen extends ConsumerStatefulWidget {
   const BundleListingScreen({super.key});
@@ -32,13 +33,37 @@ class _BundleListingScreenState extends ConsumerState<BundleListingScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.bgWhite,
         elevation: 0,
-        leading: GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: const Icon(Icons.arrow_back_ios_new_rounded,
-              size: 18, color: AppTheme.textPrimary),
-        ),
-        title: Text('Bundle Listing',
+        automaticallyImplyLeading: false, // remove default back button
+        title: Text('Study Bundles',
             style: AppTheme.headingLight.copyWith(fontSize: 18)),
+        actions: [
+          // Sign out button
+          GestureDetector(
+            onTap: () async {
+              await ref.read(authProvider.notifier).signOut();
+              // signOut() resets flow to splash + sets unauthenticated
+              // _AuthGate rebuilds automatically — no Navigator needed
+            },
+            child: Container(
+              margin: const EdgeInsets.only(right: AppTheme.s16),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppTheme.brandRedSurface,
+                borderRadius: BorderRadius.circular(AppTheme.radiusCircle),
+                border: Border.all(
+                    color: AppTheme.brandRed.withValues(alpha: 0.3)),
+              ),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                const Icon(Icons.logout_rounded,
+                    size: 15, color: AppTheme.brandRed),
+                const SizedBox(width: 5),
+                Text('Sign Out',
+                    style: AppTheme.labelMedium.copyWith(
+                        color: AppTheme.brandRed, fontSize: 12)),
+              ]),
+            ),
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(height: 1, color: AppTheme.borderLight),

@@ -1,1 +1,35 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"alogyan-prep1","appId":"1:723181195464:android:b5f0646498d221779555fd","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"alogyan-prep1","configurations":{"android":"1:723181195464:android:b5f0646498d221779555fd"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "alogyan-prep1",
+          "appId": "1:723181195464:android:b5f0646498d221779555fd",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "alogyan-prep1",
+          "configurations": {
+            "android": "1:723181195464:android:b5f0646498d221779555fd"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "(web)",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

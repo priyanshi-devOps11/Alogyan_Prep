@@ -1,0 +1,8 @@
+[{
+  relation [delegate_permissioncommon.handle_all_urls],
+  target {
+    namespace android_app,
+    package_name com.example.alogyan_prep,
+    sha256_cert_fingerprints [C2BF8FEA0C89208DB18EDEFE1C5224D195B58BE8F2953C4F282CB368555E2BC4]
+  }
+}]

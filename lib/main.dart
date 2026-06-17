@@ -1,14 +1,3 @@
-// ════════════════════════════════════════════════════════════════════════════
-// main.dart
-// KEY FIX (Point 2): _AuthGate is a ConsumerWidget that watches authProvider.
-// When status == authenticated:
-//   • userModel.isOnboardingCompleted == true  → BundleListingScreen
-//   • userModel.isOnboardingCompleted == false → force flowProvider to
-//     the user's last pending step, render OnboardingScreen
-//   • userModel == null (still loading from Firestore) → loading spinner
-// This eliminates the gap where auth is set but flow step is undefined.
-// ════════════════════════════════════════════════════════════════════════════
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,6 +9,7 @@ import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
 import 'package:alogyan_prep/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:alogyan_prep/features/bundle_listing/presentation/screens/bundle_listing_screen.dart';
 import 'firebase_options.dart';
+import 'package:alogyan_prep/features/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,9 +60,12 @@ class _AuthGate extends ConsumerWidget {
         return const OnboardingScreen();
 
     // ── Loading / Email pending — show spinner ─────────────────────────────
+    // In _AuthGate build(), replace the emailPendingVerification case:
       case AuthStatus.loading:
+        return const _LoadingScaffold();
+
       case AuthStatus.emailPendingVerification:
-      // verifyEmail step (set in register()) renders correctly
+      // Show OnboardingScreen so verifyEmail step renders correctly
         return const OnboardingScreen();
 
     // ── Authenticated ──────────────────────────────────────────────────────
@@ -87,7 +80,7 @@ class _AuthGate extends ConsumerWidget {
 
         // Onboarding complete — go straight to bundle listings
         if (userModel.isOnboardingCompleted) {
-          return const BundleListingScreen();
+          return const HomeScreen();
         }
 
         // Onboarding NOT complete — resume from the user's last pending step.

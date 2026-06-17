@@ -415,10 +415,7 @@ class AuthNotifier extends Notifier<AuthState> {
         // BundleListingScreen when it sees isOnboardingCompleted == true.
         // Just set authenticated state; no flow override needed.
       } else {
-        // ── FORCE INTERCEPT: set flow step BEFORE auth state ──────────────
-        // This eliminates the routing gap where auth is authenticated but
-        // flowProvider still points to splash/welcome/name.
-        flow.goTo(OnboardingStep.dateOfBirth);
+        _resumePendingStep(user, flow);
       }
 
       // NOW set authenticated state — widget tree rebuilds with a destination

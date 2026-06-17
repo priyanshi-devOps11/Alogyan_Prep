@@ -6,6 +6,8 @@ import 'package:alogyan_prep/features/onboarding/controllers/controllers.dart';
 import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
 import 'package:alogyan_prep/features/onboarding/presentation/widgets/widgets.dart';
 
+import 'dart:async';
+
 /// Phone authentication screen.
 /// Supports Firebase Phone Auth with predefined test numbers.
 ///
@@ -42,6 +44,7 @@ class _PhoneLoginScreenState extends ConsumerState<PhoneLoginScreen> {
   void dispose() {
     _phoneCtrl.dispose();
     _otpCtrl.dispose();
+    _resendTimer?.cancel(); // ← add this
     super.dispose();
   }
 
@@ -77,18 +80,22 @@ class _PhoneLoginScreenState extends ConsumerState<PhoneLoginScreen> {
     );
   }
 
+  // Add to _PhoneLoginScreenState fields:
+  Timer? _resendTimer;
   void _startResendTimer() {
-    Future.doWhile(() async {
-      await Future.delayed(const Duration(seconds: 1));
-      if (!mounted) return false;
+    _resendTimer?.cancel();
+    setState(() { _elapsed = 0; _canResend = false; });
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) { t.cancel(); return; }
       setState(() {
         _elapsed++;
-        if (_elapsed >= 30) _canResend = true;
+        if (_elapsed >= 30) {
+          _canResend = true;
+          t.cancel();
+        }
       });
-      return mounted && !_canResend;
     });
   }
-
   Future<void> _verifyOtp() async {
     final otp = _otpCtrl.text.trim();
     if (otp.length != 6) {
@@ -111,9 +118,11 @@ class _PhoneLoginScreenState extends ConsumerState<PhoneLoginScreen> {
     setState(() => _loading = false);
 
     if (ok) {
-      // Phone auth success — go to name step
-      ref.read(flowProvider.notifier).goTo(OnboardingStep.name);
-      if (mounted) Navigator.pop(context);
+      // AuthNotifier already called goTo(dateOfBirth) + set authenticated.
+      // _AuthGate handles routing. Just close this screen back to root.
+      if (mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
     } else {
       final err = ref.read(authProvider).errorMessage;
       _snack(err ?? 'OTP verification failed. Please try again.', error: true);
