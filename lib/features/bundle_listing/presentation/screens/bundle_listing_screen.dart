@@ -41,8 +41,7 @@ class _BundleListingScreenState extends ConsumerState<BundleListingScreen> {
           GestureDetector(
             onTap: () async {
               await ref.read(authProvider.notifier).signOut();
-              // signOut() resets flow to splash + sets unauthenticated
-              // _AuthGate rebuilds automatically — no Navigator needed
+              // signOut() resets flow to splash + sets unauthenticate
             },
             child: Container(
               margin: const EdgeInsets.only(right: AppTheme.s16),
@@ -72,7 +71,7 @@ class _BundleListingScreenState extends ConsumerState<BundleListingScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Search bar ────────────────────────────────────────────────
+          // ── Search bar ───
           BundleSearchBar(
             controller: _searchCtrl,
             onChanged: (v) {

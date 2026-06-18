@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:alogyan_prep/core/theme/app_theme.dart';
 import '../models/bundle_model.dart';
 
-// ══════════════════════════════════════════════════════════════════════
 // purchased_badge.dart
-// ══════════════════════════════════════════════════════════════════════
 class PurchasedBadge extends StatelessWidget {
   const PurchasedBadge({super.key});
 
@@ -26,9 +24,7 @@ class PurchasedBadge extends StatelessWidget {
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════
 // search_widget.dart
-// ══════════════════════════════════════════════════════════════════════
 class BundleSearchBar extends StatelessWidget {
   const BundleSearchBar({
     super.key,
@@ -75,9 +71,7 @@ class BundleSearchBar extends StatelessWidget {
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════
 // filter_widget.dart
-// ══════════════════════════════════════════════════════════════════════
 class BundleFilterBar extends StatelessWidget {
   const BundleFilterBar({
     super.key,
@@ -126,9 +120,7 @@ class BundleFilterBar extends StatelessWidget {
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════
 // bundle_card.dart
-// ══════════════════════════════════════════════════════════════════════
 class BundleCard extends StatelessWidget {
   const BundleCard({
     super.key,

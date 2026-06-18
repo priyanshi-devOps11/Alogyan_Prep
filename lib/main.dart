@@ -60,7 +60,7 @@ class _AuthGate extends ConsumerWidget {
         return const OnboardingScreen();
 
     // ── Loading / Email pending — show spinner ─────────────────────────────
-    // In _AuthGate build(), replace the emailPendingVerification case:
+
       case AuthStatus.loading:
         return const _LoadingScaffold();
 

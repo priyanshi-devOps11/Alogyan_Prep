@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Clean logic and models imports
 import 'package:alogyan_prep/features/onboarding/controllers/controllers.dart';
 import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
 
-// Absolute clean paths pointing to your files
 import 'package:alogyan_prep/features/onboarding/presentation/screens/splash_screen.dart';
 import 'package:alogyan_prep/features/onboarding/presentation/screens/step_screens.dart';
+import 'package:alogyan_prep/features/onboarding/presentation/screens/email_verify_screen.dart';
 import 'package:alogyan_prep/features/onboarding/presentation/screens/plan_ready_screen.dart';
 
+/// Root onboarding router.
+/// Watches [flowProvider]'s current [OnboardingStep] and renders the
+/// matching screen with a smooth fade + slide cross-fade transition.
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
 
@@ -25,7 +27,8 @@ class OnboardingScreen extends ConsumerWidget {
           position: Tween<Offset>(
             begin: const Offset(0.04, 0),
             end: Offset.zero,
-          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+          ).animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeOut)),
           child: child,
         ),
       ),
@@ -33,7 +36,6 @@ class OnboardingScreen extends ConsumerWidget {
     );
   }
 
-  /// Exhaustive mapping of every [OnboardingStep] to its screen widget.
   Widget _screen(OnboardingStep step) => switch (step) {
     OnboardingStep.splash =>
     const SplashScreen(key: ValueKey('splash')),
@@ -43,7 +45,8 @@ class OnboardingScreen extends ConsumerWidget {
     const NameStepScreen(key: ValueKey('name')),
     OnboardingStep.verifyEmail =>
     const EmailStepScreen(key: ValueKey('email')),
-    OnboardingStep.emailVerifyWait => const EmailVerifyWaitScreen(key: ValueKey('verify_wait')),
+    OnboardingStep.emailVerifyWait =>
+    const EmailVerifyWaitScreen(key: ValueKey('verify_wait')),
     OnboardingStep.dateOfBirth =>
     const DobStepScreen(key: ValueKey('dob')),
     OnboardingStep.educationGoal =>

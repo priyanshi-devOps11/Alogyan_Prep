@@ -1,13 +1,3 @@
-// ════════════════════════════════════════════════════════════════════════════
-// controllers.dart
-// Single source of ALL Riverpod providers.
-// OnboardingStep imported from models.dart — never redefined here.
-// KEY FIX: After Google / Phone auth, explicitly calls
-//   ref.read(flowProvider.notifier).goTo(OnboardingStep.dateOfBirth)
-//   BEFORE setting AuthState.authenticated so UI transition is
-//   guaranteed to have a destination before the widget tree rebuilds.
-// ════════════════════════════════════════════════════════════════════════════
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
@@ -19,9 +9,7 @@ final authRepositoryProvider = Provider<AuthRepository>(
       (_) => FirebaseAuthRepository(),
 );
 
-// ══════════════════════════════════════════════════════════════════════════════
 // SPLASH (4 dark intro slides)
-// ══════════════════════════════════════════════════════════════════════════════
 class SplashState {
   final int index, total;
   const SplashState({required this.index, required this.total});
@@ -59,9 +47,7 @@ class SplashNotifier extends Notifier<SplashState> {
 final splashProvider =
 NotifierProvider<SplashNotifier, SplashState>(SplashNotifier.new);
 
-// ══════════════════════════════════════════════════════════════════════════════
 // FLOW STATE MACHINE
-// ══════════════════════════════════════════════════════════════════════════════
 class FlowState {
   final OnboardingStep step;
   final OnboardingProfile profile;
@@ -215,9 +201,8 @@ class FlowNotifier extends Notifier<FlowState> {
 final flowProvider =
 NotifierProvider<FlowNotifier, FlowState>(FlowNotifier.new);
 
-// ══════════════════════════════════════════════════════════════════════════════
+
 // AUTH STATE
-// ══════════════════════════════════════════════════════════════════════════════
 class AuthState {
   final AuthStatus status;
   final String?    userId, email, displayName, errorMessage;
@@ -277,9 +262,7 @@ class AuthState {
   bool get isPendingVerify => status == AuthStatus.emailPendingVerification;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
 // AUTH NOTIFIER
-// ══════════════════════════════════════════════════════════════════════════════
 class AuthNotifier extends Notifier<AuthState> {
   late final AuthRepository _repo;
 
@@ -298,17 +281,38 @@ class AuthNotifier extends Notifier<AuthState> {
     return const AuthState.unauthenticated();
   }
 
-  // Load UserModel from Firestore and update state with it
+  // Load UserModel from Firestore and update state with it.
   Future<void> _hydrateUserModel(String uid) async {
+    if (!state.isAuthenticated) return;
+
     final user = await _repo.fetchUserModel(uid);
-    if (user != null && state.isAuthenticated) {
+
+    if (user != null) {
       state = AuthState.authenticated(
         userId: uid,
         email: user.email,
         displayName: user.displayName,
         userModel: user,
       );
+      return;
     }
+
+    // No Firestore doc found — create a minimal placeholder so
+    // _AuthGate can proceed instead of stalling forever.
+    final placeholder = UserModel(
+      uid: uid,
+      email: _repo.currentUserEmail ?? state.email ?? '',
+      firstName: '',
+      lastName: '',
+      authProvider: 'email',
+      isOnboardingCompleted: false,
+    );
+    state = AuthState.authenticated(
+      userId: uid,
+      email: placeholder.email,
+      displayName: state.displayName,
+      userModel: placeholder,
+    );
   }
 
   // ── Email sign in ─────────────────────────────────────────────────────────
@@ -369,12 +373,32 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<bool> checkEmailVerified() async {
     final verified = await _repo.checkEmailVerified();
     if (verified && state.userId != null) {
-      // KEY FIX (Point 4): transition flow BEFORE setting authenticated
-      // so the router has a destination before the widget tree reacts.
+      final uid  = state.userId!;
+      final email = state.email ?? '';
+
+      // KEY FIX: fetch or create Firestore doc before setting authenticated
+      // so _AuthGate never sees userModel == null and gets stuck on spinner
+      var user = await _repo.fetchUserModel(uid);
+      if (user == null) {
+        final flowProfile = ref.read(flowProvider).profile;
+        user = UserModel(
+          uid:                   uid,
+          email:                 email,
+          firstName:             flowProfile.firstName ?? '',
+          lastName:              flowProfile.lastName  ?? '',
+          authProvider:          'email',
+          isOnboardingCompleted: false,
+        );
+        await _repo.saveUserModel(user, isNew: true);
+      }
+
+      // Set flow BEFORE authenticated so router has destination ready
       ref.read(flowProvider.notifier).goTo(OnboardingStep.dateOfBirth);
+
       state = AuthState.authenticated(
-        userId: state.userId!,
-        email:  state.email ?? '',
+        userId:    uid,
+        email:     email,
+        userModel: user,
       );
     }
     return verified;
@@ -387,7 +411,6 @@ class AuthNotifier extends Notifier<AuthState> {
   //   3. INJECT flow step → OnboardingStep.dateOfBirth  ← KEY FIX
   //   4. THEN set AuthState.authenticated
   // This guarantees the router has a valid destination BEFORE the widget
-  // tree reacts to the auth state change. No routing gap possible.
   Future<bool> googleSignIn() async {
     state = const AuthState.loading();
     try {
@@ -413,7 +436,6 @@ class AuthNotifier extends Notifier<AuthState> {
       if (user.isOnboardingCompleted) {
         // Returning user who finished onboarding — _AuthGate will route to
         // BundleListingScreen when it sees isOnboardingCompleted == true.
-        // Just set authenticated state; no flow override needed.
       } else {
         _resumePendingStep(user, flow);
       }
@@ -529,7 +551,6 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> signOut() async {
     await _repo.signOut();
     // Reset flow to splash BEFORE clearing auth state so the router
-    // always has a valid screen to render during the transition.
     ref.read(flowProvider.notifier).goTo(OnboardingStep.splash);
     state = const AuthState.unauthenticated();
   }

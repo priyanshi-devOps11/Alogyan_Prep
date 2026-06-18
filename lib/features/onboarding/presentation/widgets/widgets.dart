@@ -190,6 +190,57 @@ class GoogleButton extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Secondary Button (outlined — pairs with PrimaryButton)
+// ─────────────────────────────────────────────────────────────────────────────
+class SecondaryButton extends StatelessWidget {
+  const SecondaryButton({super.key, required this.label, required this.onPressed,
+    this.isLoading = false, this.icon});
+  final String label;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity, height: 52,
+      child: GestureDetector(
+        onTap: (isLoading || onPressed == null) ? null : onPressed,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          decoration: BoxDecoration(
+            color: AppTheme.bgWhite,
+            borderRadius: BorderRadius.circular(AppTheme.radiusM),
+            border: Border.all(
+              color: (isLoading || onPressed == null)
+                  ? AppTheme.borderLight
+                  : AppTheme.brandRed,
+              width: 1.5,
+            ),
+          ),
+          child: Center(
+            child: isLoading
+                ? const SizedBox(width: 20, height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation(AppTheme.brandRed)))
+                : Row(mainAxisSize: MainAxisSize.min, children: [
+              Text(label, style: AppTheme.buttonLabel.copyWith(
+                  color: (onPressed == null)
+                      ? AppTheme.textMuted
+                      : AppTheme.brandRed)),
+              if (icon != null) ...[const SizedBox(width: 8),
+                Icon(icon, color: (onPressed == null)
+                    ? AppTheme.textMuted
+                    : AppTheme.brandRed, size: 18)],
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
 // Text Input Field
 // ─────────────────────────────────────────────────────────────────────────────
 class AlogyanField extends StatefulWidget {

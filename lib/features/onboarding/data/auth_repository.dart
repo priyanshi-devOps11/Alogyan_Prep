@@ -1,5 +1,4 @@
-
-// ════════════════════════════════════════════════════════════════════════════
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,8 +8,6 @@ import 'user_model.dart';
 // ── Whitelisted test credentials ─────────────────────────────────────────────
 // These MUST be registered in:
 // Firebase Console → Authentication → Sign-in method → Phone →
-// "Phone numbers for testing" section.
-// Once registered there, Firebase resolves them locally with NO network call.
 const String _kWhitelistPhone        = '+918081438778';
 const String _kWhitelistOtp          = '123456';
 const String _kWhitelistVerificationId = 'whitelisted-test-session';
@@ -96,21 +93,17 @@ class FirebaseAuthRepository implements AuthRepository {
     }
   }
 
-  // ── Email verification ────────────────────────────────────────────────────
   @override
   Future<void> sendVerificationEmail() async {
     try {
-      await _auth.currentUser?.sendEmailVerification(
-        ActionCodeSettings(
-          url: 'https://alogyanprep.page.link/verify', // your Firebase Dynamic Link domain
-          handleCodeInApp: true,
-          androidPackageName: 'com.alogyan.prep',      // your actual package name from AndroidManifest
-          androidInstallApp: true,
-          androidMinimumVersion: '1',
-          iOSBundleId: 'com.alogyan.prep',             // only if you have iOS
-        ),
-      );
-    } catch (_) {}
+      final user = _auth.currentUser;
+      debugPrint('[EMAIL] currentUser: ${user?.email}');
+      debugPrint('[EMAIL] emailVerified: ${user?.emailVerified}');
+      await user?.sendEmailVerification();
+      debugPrint('[EMAIL] Verification email sent successfully');
+    } catch (e) {
+      debugPrint('[EMAIL] ERROR sending verification: $e');
+    }
   }
 
   @override

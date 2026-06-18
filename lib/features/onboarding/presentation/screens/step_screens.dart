@@ -6,6 +6,7 @@ import 'package:alogyan_prep/features/onboarding/controllers/controllers.dart';
 import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
 import 'package:alogyan_prep/features/onboarding/presentation/screens/phone_login_screen.dart';
 import 'package:alogyan_prep/features/onboarding/presentation/widgets/widgets.dart';
+import 'package:alogyan_prep/features/onboarding/presentation/screens/login_screen.dart';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // WELCOME SCREEN
@@ -44,8 +45,28 @@ class WelcomeScreen extends ConsumerWidget {
             const SizedBox(height: AppTheme.s32),
             GoogleButton(isLoading: auth.isLoading, onPressed: aN.googleSignIn),
             const SizedBox(height: AppTheme.s12),
-            PrimaryButton(label: 'Get Started', icon: Icons.arrow_forward_rounded,
-                onPressed: () => flow.goTo(OnboardingStep.name)),
+            Row(
+              children: [
+                Expanded(
+                  child: SecondaryButton(
+                    label: 'Sign In',
+                    icon: Icons.login_rounded,
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppTheme.s12),
+                Expanded(
+                  child: PrimaryButton(
+                    label: 'Get Started',
+                    icon: Icons.arrow_forward_rounded,
+                    onPressed: () => flow.goTo(OnboardingStep.name),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: AppTheme.s16),
             Center(child: Text.rich(TextSpan(style: AppTheme.bodySmall, children: [
               const TextSpan(text: 'By continuing you agree to our '),
@@ -415,163 +436,7 @@ class _PassRequirements extends StatelessWidget {
 class _Chk { final String label; final bool met; const _Chk(this.label, this.met); }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// EMAIL VERIFY WAIT SCREEN
-// ══════════════════════════════════════════════════════════════════════════════
-class EmailVerifyWaitScreen extends ConsumerStatefulWidget {
-  const EmailVerifyWaitScreen({super.key});
-  @override ConsumerState<EmailVerifyWaitScreen> createState() => _EVWState();
-}
-class _EVWState extends ConsumerState<EmailVerifyWaitScreen> {
-  // ── Polling ────────────────────────────────────────────────────────────────
-  Timer? _pollTimer;
-
-  // ── Resend cooldown ────────────────────────────────────────────────────────
-  Timer? _cooldownTimer;
-  int    _cooldownSeconds = 30; // start at 30 — button locked initially
-  bool   _isResending     = false;
-
-  static const _kCooldownStart = 30;
-
-  @override
-  void initState() {
-    super.initState();
-    _startPolling();
-    _startCooldown(_kCooldownStart);
-  }
-
-  @override
-  void dispose() {
-    // Both timers MUST be cancelled here — prevents ref.read() on dead widget
-    _pollTimer?.cancel();
-    _cooldownTimer?.cancel();
-    super.dispose();
-  }
-
-  // ── Polling logic ──────────────────────────────────────────────────────────
-  void _startPolling() {
-    _pollTimer?.cancel();
-    _pollTimer = Timer.periodic(const Duration(seconds: 3), (_) async {
-      if (!mounted) return;
-      final verified =
-      await ref.read(authProvider.notifier).checkEmailVerified();
-      // checkEmailVerified() in AuthNotifier already calls:
-      //   goTo(OnboardingStep.dateOfBirth) → then sets AuthState.authenticated
-      // So routing is automatic — we just stop the timer here.
-      if (verified) _pollTimer?.cancel();
-    });
-  }
-
-  // ── Cooldown countdown ─────────────────────────────────────────────────────
-  void _startCooldown(int seconds) {
-    setState(() => _cooldownSeconds = seconds);
-    _cooldownTimer?.cancel();
-    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (!mounted) { t.cancel(); return; }
-      setState(() {
-        _cooldownSeconds--;
-        if (_cooldownSeconds <= 0) {
-          _cooldownSeconds = 0;
-          t.cancel();
-        }
-      });
-    });
-  }
-
-  // ── Resend ─────────────────────────────────────────────────────────────────
-  Future<void> _resend() async {
-    if (_cooldownSeconds > 0 || _isResending) return;
-    setState(() => _isResending = true);
-    await ref.read(authRepositoryProvider).sendVerificationEmail();
-    if (!mounted) return;
-    setState(() => _isResending = false);
-    _startCooldown(_kCooldownStart);
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Verification email resent!')));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final auth       = ref.watch(authProvider);
-    final canResend  = _cooldownSeconds == 0 && !_isResending;
-
-    return Scaffold(
-      backgroundColor: AppTheme.bgSoft,
-      body: SafeArea(child: Padding(
-        padding: const EdgeInsets.all(AppTheme.s24),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          const SizedBox(height: AppTheme.s40),
-          Container(width: 90, height: 90,
-              decoration: BoxDecoration(
-                  color: AppTheme.brandRedSurface, shape: BoxShape.circle),
-              child: const Icon(Icons.mark_email_unread_rounded,
-                  size: 46, color: AppTheme.brandRed)),
-          const SizedBox(height: AppTheme.s24),
-          Text('Verify your email',
-              style: AppTheme.headingLight, textAlign: TextAlign.center),
-          const SizedBox(height: AppTheme.s12),
-          Text('A verification link was sent to\n${auth.email ?? ''}',
-              style: AppTheme.bodyLight, textAlign: TextAlign.center),
-          const SizedBox(height: AppTheme.s32),
-
-          // Polling status pill
-          Container(
-              padding: const EdgeInsets.all(AppTheme.s16),
-              decoration: BoxDecoration(color: AppTheme.bgWhite,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusL),
-                  boxShadow: AppTheme.cardShadow),
-              child: Row(children: [
-                SizedBox(width: 20, height: 20,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: AppTheme.brandRed)), // always spinning = always checking
-                const SizedBox(width: AppTheme.s12),
-                Text('Waiting for verification…', style: AppTheme.bodyLight),
-              ])),
-          const SizedBox(height: AppTheme.s16),
-          Text(
-              'Open your email and click the link.\nThis page updates automatically.',
-              style: AppTheme.bodySmall.copyWith(color: AppTheme.textMuted),
-              textAlign: TextAlign.center),
-
-          const Spacer(),
-
-          // Resend button
-          GestureDetector(
-              onTap: canResend ? _resend : null,
-              child: Container(
-                  width: double.infinity, height: 50,
-                  decoration: BoxDecoration(
-                      color: canResend ? AppTheme.bgWhite : AppTheme.bgSoft,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusM),
-                      border: Border.all(
-                          color: canResend
-                              ? AppTheme.brandRed
-                              : AppTheme.borderLight)),
-                  child: Center(child: _isResending
-                      ? const SizedBox(width: 18, height: 18,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: AppTheme.brandRed))
-                      : Text(
-                      canResend
-                          ? 'Resend verification email'
-                          : 'Resend in ${_cooldownSeconds}s',
-                      style: AppTheme.labelMedium.copyWith(
-                          color: canResend
-                              ? AppTheme.brandRed
-                              : AppTheme.textMuted))))),
-          const SizedBox(height: AppTheme.s12),
-
-          // Skip
-          GestureDetector(
-              onTap: () => ref.read(flowProvider.notifier).next(),
-              child: Text('Skip for now →',
-                  style: AppTheme.linkText.copyWith(fontSize: 13))),
-          const SizedBox(height: AppTheme.s24),
-        ]),
-      )),
-    );
-  }
-}
+// EMAIL VERIFY WAIT SCREEN -seperate screen
 
 // ══════════════════════════════════════════════════════════════════════════════
 // STEP 3/4 — DATE OF BIRTH
