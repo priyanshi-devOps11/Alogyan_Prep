@@ -6,9 +6,6 @@ import 'package:alogyan_prep/features/onboarding/controllers/controllers.dart';
 import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
 import 'package:alogyan_prep/features/onboarding/presentation/screens/login_screen.dart';
 
-/// KEY FIX: Uses WidgetsBindingObserver to detect when user returns
-/// from email app. Immediately checks verification on app resume.
-/// This replaces the need for Firebase Dynamic Links / deep links.
 class EmailVerifyWaitScreen extends ConsumerStatefulWidget {
   const EmailVerifyWaitScreen({super.key});
   @override
@@ -56,10 +53,8 @@ class _EmailVerifyWaitState extends ConsumerState<EmailVerifyWaitScreen>
     _pollTimer?.cancel();
     if (!mounted || _disposed) return;
 
-    // 1. Auth Provider ko inform karo ki user verify ho gaya
     await ref.read(authProvider.notifier).checkEmailVerified();
 
-    // 2. Flow State ko next screen par le jao
     if (mounted) {
       ref.read(flowProvider.notifier).goTo(OnboardingStep.dateOfBirth);
     }

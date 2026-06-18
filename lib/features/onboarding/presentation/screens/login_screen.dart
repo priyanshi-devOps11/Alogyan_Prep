@@ -4,12 +4,6 @@ import 'package:alogyan_prep/core/theme/app_theme.dart';
 import 'package:alogyan_prep/features/onboarding/controllers/controllers.dart';
 import 'package:alogyan_prep/features/onboarding/presentation/widgets/widgets.dart';
 
-/// Login screen.
-/// Reached from:
-///   1. Welcome screen "Sign In" button
-///   2. EmailVerifyWaitScreen "Already Verified? Sign In" button
-///   3. After sign-out
-///
 /// On successful sign-in, _AuthGate in main.dart automatically routes:
 ///   - isOnboardingCompleted == true  → BundleListingScreen
 ///   - isOnboardingCompleted == false → resume pending step (DOB / goal etc.)

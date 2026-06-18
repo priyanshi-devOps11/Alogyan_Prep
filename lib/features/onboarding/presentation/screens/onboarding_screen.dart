@@ -9,9 +9,6 @@ import 'package:alogyan_prep/features/onboarding/presentation/screens/step_scree
 import 'package:alogyan_prep/features/onboarding/presentation/screens/email_verify_screen.dart';
 import 'package:alogyan_prep/features/onboarding/presentation/screens/plan_ready_screen.dart';
 
-/// Root onboarding router.
-/// Watches [flowProvider]'s current [OnboardingStep] and renders the
-/// matching screen with a smooth fade + slide cross-fade transition.
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
 

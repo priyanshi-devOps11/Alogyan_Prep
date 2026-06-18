@@ -7,7 +7,6 @@ import 'package:alogyan_prep/core/theme/app_theme.dart';
 import 'package:alogyan_prep/features/onboarding/controllers/controllers.dart';
 import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
 import 'package:alogyan_prep/features/onboarding/presentation/screens/onboarding_screen.dart';
-import 'package:alogyan_prep/features/bundle_listing/presentation/screens/bundle_listing_screen.dart';
 import 'firebase_options.dart';
 import 'package:alogyan_prep/features/home_screen.dart';
 
@@ -42,9 +41,7 @@ class AlogyanPrepApp extends ConsumerWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════════════════
 // _AuthGate — smart reactive routing with Firestore-aware session restore
-// ════════════════════════════════════════════════════════════════════════════
 class _AuthGate extends ConsumerWidget {
   const _AuthGate();
 

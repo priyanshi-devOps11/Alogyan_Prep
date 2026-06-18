@@ -1,17 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:alogyan_prep/core/theme/app_theme.dart';
 import 'package:alogyan_prep/features/onboarding/controllers/controllers.dart';
-import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
 import 'package:alogyan_prep/features/onboarding/presentation/widgets/widgets.dart';
 
-import 'dart:async';
-
-/// Phone authentication screen.
-/// Supports Firebase Phone Auth with predefined test numbers.
-///
-/// Firebase Console setup:
 /// Authentication → Sign-in method → Phone → Phone numbers for testing
 /// Add: +91XXXXXXXXXX  →  OTP: 123456  (your predefined test pair)
 class PhoneLoginScreen extends ConsumerStatefulWidget {
@@ -21,11 +15,6 @@ class PhoneLoginScreen extends ConsumerStatefulWidget {
 }
 
 // ── DEV TEST CREDENTIALS ────────────────────────────────────────────────────
-// Must match EXACTLY what's added in:
-// Firebase Console → Authentication → Sign-in method → Phone →
-// "Phone numbers for testing (skip App Verification)"
-// When this number+OTP pair is used, Firebase resolves locally —
-// no SMS gateway is hit, so BILLING_NOT_ENABLED never triggers.
 const String _kTestPhoneNumber = '8081438778'; // without +91, matches our 10-digit input field
 const String _kTestOtp         = '123456';
 // ─────────────────────────────────────────────────────────────────────────
@@ -44,7 +33,7 @@ class _PhoneLoginScreenState extends ConsumerState<PhoneLoginScreen> {
   void dispose() {
     _phoneCtrl.dispose();
     _otpCtrl.dispose();
-    _resendTimer?.cancel(); // ← add this
+    _resendTimer?.cancel();
     super.dispose();
   }
 
@@ -80,7 +69,6 @@ class _PhoneLoginScreenState extends ConsumerState<PhoneLoginScreen> {
     );
   }
 
-  // Add to _PhoneLoginScreenState fields:
   Timer? _resendTimer;
   void _startResendTimer() {
     _resendTimer?.cancel();

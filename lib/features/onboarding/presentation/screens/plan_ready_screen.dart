@@ -4,7 +4,6 @@ import 'package:alogyan_prep/core/theme/app_theme.dart';
 import 'package:alogyan_prep/features/onboarding/controllers/controllers.dart';
 import 'package:alogyan_prep/features/onboarding/data/onboarding_model.dart';
 
-
 class PlanReadyScreen extends ConsumerWidget {
   const PlanReadyScreen({super.key});
 

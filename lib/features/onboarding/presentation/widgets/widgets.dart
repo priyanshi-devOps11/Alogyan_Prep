@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import '/core/theme/app_theme.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Dot Indicator (used on dark splash slides)
-// ─────────────────────────────────────────────────────────────────────────────
 class PageDotIndicator extends StatelessWidget {
   const PageDotIndicator({super.key, required this.total, required this.current});
   final int total, current;
@@ -32,9 +30,7 @@ class PageDotIndicator extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Step Progress Header (used on light profile steps)
-// ─────────────────────────────────────────────────────────────────────────────
 class StepHeader extends StatelessWidget {
   const StepHeader({super.key, required this.onBack,
     this.fraction, this.progress = 0.0, this.onSkip});
@@ -102,9 +98,7 @@ class StepHeader extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Primary Button
-// ─────────────────────────────────────────────────────────────────────────────
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({super.key, required this.label, required this.onPressed,
     this.isLoading = false, this.icon});
@@ -150,9 +144,7 @@ class PrimaryButton extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Google Sign-In Button
-// ─────────────────────────────────────────────────────────────────────────────
 class GoogleButton extends StatelessWidget {
   const GoogleButton({super.key, required this.onPressed, this.isLoading = false});
   final VoidCallback onPressed;
@@ -189,9 +181,7 @@ class GoogleButton extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Secondary Button (outlined — pairs with PrimaryButton)
-// ─────────────────────────────────────────────────────────────────────────────
 class SecondaryButton extends StatelessWidget {
   const SecondaryButton({super.key, required this.label, required this.onPressed,
     this.isLoading = false, this.icon});
@@ -240,9 +230,8 @@ class SecondaryButton extends StatelessWidget {
     );
   }
 }
-// ─────────────────────────────────────────────────────────────────────────────
+
 // Text Input Field
-// ─────────────────────────────────────────────────────────────────────────────
 class AlogyanField extends StatefulWidget {
   const AlogyanField({super.key, required this.controller, required this.hint,
     this.isPassword = false, this.keyboardType = TextInputType.text,
@@ -286,9 +275,7 @@ class _AlogyanFieldState extends State<AlogyanField> {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Selectable Option Card
-// ─────────────────────────────────────────────────────────────────────────────
 class OptionCard extends StatelessWidget {
   const OptionCard({super.key, required this.label, required this.isSelected,
     required this.onTap, this.emoji});
@@ -326,9 +313,7 @@ class OptionCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Illustration Image with fallback
-// ─────────────────────────────────────────────────────────────────────────────
 class IllustrationImage extends StatelessWidget {
   const IllustrationImage({super.key, required this.asset, this.height = 220});
   final String asset;
@@ -355,9 +340,7 @@ class IllustrationImage extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // OR Divider
-// ─────────────────────────────────────────────────────────────────────────────
 class OrDivider extends StatelessWidget {
   const OrDivider({super.key});
   @override
@@ -369,9 +352,7 @@ class OrDivider extends StatelessWidget {
   ]);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Brand Row (logo + name)
-// ─────────────────────────────────────────────────────────────────────────────
 class BrandRow extends StatelessWidget {
   const BrandRow({super.key, this.dark = false});
   final bool dark;

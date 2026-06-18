@@ -8,9 +8,7 @@ import 'package:alogyan_prep/features/onboarding/presentation/screens/phone_logi
 import 'package:alogyan_prep/features/onboarding/presentation/widgets/widgets.dart';
 import 'package:alogyan_prep/features/onboarding/presentation/screens/login_screen.dart';
 
-// ══════════════════════════════════════════════════════════════════════════════
 // WELCOME SCREEN
-// ══════════════════════════════════════════════════════════════════════════════
 class WelcomeScreen extends ConsumerWidget {
   const WelcomeScreen({super.key});
 
@@ -81,9 +79,7 @@ class WelcomeScreen extends ConsumerWidget {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
 // STEP 1/4 — NAME
-// ══════════════════════════════════════════════════════════════════════════════
 class NameStepScreen extends ConsumerStatefulWidget {
   const NameStepScreen({super.key});
   @override ConsumerState<NameStepScreen> createState() => _NameState();
@@ -153,9 +149,7 @@ class _NameState extends ConsumerState<NameStepScreen> {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
 // STEP 2/4 — EMAIL (mandatory password + phone link + auth gate)
-// ══════════════════════════════════════════════════════════════════════════════
 class EmailStepScreen extends ConsumerStatefulWidget {
   const EmailStepScreen({super.key});
   @override ConsumerState<EmailStepScreen> createState() => _EmailState();
@@ -435,12 +429,7 @@ class _PassRequirements extends StatelessWidget {
 }
 class _Chk { final String label; final bool met; const _Chk(this.label, this.met); }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// EMAIL VERIFY WAIT SCREEN -seperate screen
-
-// ══════════════════════════════════════════════════════════════════════════════
 // STEP 3/4 — DATE OF BIRTH
-// ══════════════════════════════════════════════════════════════════════════════
 class DobStepScreen extends ConsumerStatefulWidget {
   const DobStepScreen({super.key});
   @override ConsumerState<DobStepScreen> createState() => _DobState();
@@ -514,9 +503,7 @@ class _DobState extends ConsumerState<DobStepScreen> {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
 // STEP 4/4 — EXAM GOAL
-// ══════════════════════════════════════════════════════════════════════════════
 class ExamGoalScreen extends ConsumerWidget {
   const ExamGoalScreen({super.key});
   @override
@@ -557,9 +544,7 @@ class ExamGoalScreen extends ConsumerWidget {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
 // LEARNING STYLE
-// ══════════════════════════════════════════════════════════════════════════════
 class LearningStyleScreen extends ConsumerWidget {
   const LearningStyleScreen({super.key});
   @override
@@ -599,9 +584,7 @@ class LearningStyleScreen extends ConsumerWidget {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
 // CURRENT JOURNEY
-// ══════════════════════════════════════════════════════════════════════════════
 class JourneyScreen extends ConsumerWidget {
   const JourneyScreen({super.key});
   @override
