@@ -96,14 +96,16 @@ class FirebaseAuthRepository implements AuthRepository {
   @override
   Future<void> sendVerificationEmail() async {
     try {
-      final user = _auth.currentUser;
-      debugPrint('[EMAIL] currentUser: ${user?.email}');
-      debugPrint('[EMAIL] emailVerified: ${user?.emailVerified}');
-      await user?.sendEmailVerification();
-      debugPrint('[EMAIL] Verification email sent successfully');
-    } catch (e) {
-      debugPrint('[EMAIL] ERROR sending verification: $e');
-    }
+      await _auth.currentUser?.sendEmailVerification(
+        ActionCodeSettings(
+          url: 'https://alogyan-prep1.web.app/verify',
+          handleCodeInApp: true,
+          androidPackageName: 'com.example.alogyan_prep',
+          androidInstallApp: true,
+          androidMinimumVersion: '1',
+        ),
+      );
+    } catch (_) {}
   }
 
   @override

@@ -44,6 +44,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _loading = false);
 
     if (!ok) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else {
       final err =
           ref.read(authProvider).errorMessage ?? 'Sign in failed.';
       _showErr(err,
@@ -61,6 +63,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!mounted) return;
     setState(() => _loading = false);
     if (!ok) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else {
       final err =
           ref.read(authProvider).errorMessage ?? 'Google sign-in failed.';
       _showErr(err, isDev: ref.read(authProvider).isDeveloperError);

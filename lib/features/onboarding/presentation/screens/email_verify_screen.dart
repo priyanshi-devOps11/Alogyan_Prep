@@ -49,15 +49,10 @@ class _EmailVerifyWaitState extends ConsumerState<EmailVerifyWaitScreen>
     if (verified) _onVerified();
   }
 
-  void _onVerified() async {
+  void _onVerified() {
     _pollTimer?.cancel();
     if (!mounted || _disposed) return;
-
-    await ref.read(authProvider.notifier).checkEmailVerified();
-
-    if (mounted) {
-      ref.read(flowProvider.notifier).goTo(OnboardingStep.dateOfBirth);
-    }
+    ref.read(flowProvider.notifier).goTo(OnboardingStep.dateOfBirth);
   }
 
   // ── Background poll every 5s ──────────────────────────────────────────────
@@ -238,11 +233,7 @@ class _EmailVerifyWaitState extends ConsumerState<EmailVerifyWaitScreen>
                 child: GestureDetector(
                   onTap: () {
                     _pollTimer?.cancel();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const LoginScreen()),
-                    );
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   child: Container(
                     decoration: BoxDecoration(

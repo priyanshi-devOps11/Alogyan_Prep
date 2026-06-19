@@ -26,7 +26,7 @@ Future<void> main() async {
 
   runApp(const ProviderScope(child: AlogyanPrepApp()));
 }
-
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 class AlogyanPrepApp extends ConsumerWidget {
   const AlogyanPrepApp({super.key});
 

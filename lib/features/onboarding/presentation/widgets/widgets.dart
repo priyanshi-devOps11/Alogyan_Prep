@@ -135,7 +135,7 @@ class PrimaryButton extends StatelessWidget {
                 : Row(mainAxisSize: MainAxisSize.min, children: [
               Text(label, style: AppTheme.buttonLabel),
               if (icon != null) ...[const SizedBox(width: 8),
-                Icon(icon, color: Colors.white, size: 18)],
+                Icon(icon, color: Colors.white, size: 13)],
             ]),
           ),
         ),
@@ -222,7 +222,7 @@ class SecondaryButton extends StatelessWidget {
               if (icon != null) ...[const SizedBox(width: 8),
                 Icon(icon, color: (onPressed == null)
                     ? AppTheme.textMuted
-                    : AppTheme.brandRed, size: 18)],
+                    : AppTheme.brandRed, size: 13)],
             ]),
           ),
         ),
