@@ -233,3 +233,5 @@ All providers live in `controllers/controllers.dart`:
 > ⚠️ `OnboardingStep` is defined **only** in `data/onboarding_model.dart`. Never redeclare it elsewhere to avoid "defined in two libraries" compile errors.
 
 ---
+
+📩 srivastavapriyanshi8081@gmail.com
